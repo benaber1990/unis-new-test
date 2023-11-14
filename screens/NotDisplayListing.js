@@ -1,16 +1,71 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import COLORS from "../misc/COLORS";
 
-function NotDisplayListing({ route }) {
-  const { alertTitle, alertCat } = route.params;
+function NotDisplayListing({ navigation, route }) {
+  const { title, category, message } = route.params;
 
   return (
     <View style={styles.screenStyle}>
-      <Text style={styles.titleText}>Title display goes here</Text>
       <View>
-        <Text style={{ color: "white" }}>{alertTitle}</Text>
+        <Text
+          style={{
+            color: "white",
+            fontSize: 18,
+            fontWeight: "700",
+            textAlign: "center",
+          }}
+        >
+          {title}
+        </Text>
+        <Text
+          style={{
+            color: "white",
+            // fontSize: 18,
+            // fontWeight: "700",
+            textAlign: "center",
+          }}
+        >
+          Category: <Text style={{ fontWeight: 700 }}>{category}</Text>
+        </Text>
+        <Text
+          style={{
+            color: "white",
+            fontSize: 16,
+            // fontWeight: "700",
+            textAlign: "center",
+            marginVertical: 20,
+          }}
+        >
+          {message}
+        </Text>
+        <Text
+          style={{
+            color: "white",
+            fontSize: 18,
+            fontWeight: "700",
+            textAlign: "center",
+          }}
+        >
+          Due Date:
+        </Text>
+        {/* <Text style={{ color: "white" }}>{documentId}</Text> */}
       </View>
+
+      <Pressable
+        onPress={() => navigation.navigate("Profile")}
+        style={{
+          paddingVertical: 10,
+          paddingHorizontal: 25,
+          borderRadius: 8,
+          backgroundColor: COLORS.grey,
+          marginTop: 20,
+        }}
+      >
+        <Text style={{ color: COLORS.mainGreen, fontWeight: 700 }}>
+          View My Documents
+        </Text>
+      </Pressable>
     </View>
   );
 }

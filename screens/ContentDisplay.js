@@ -15,25 +15,26 @@ const dummyUrl =
   "https://images.pexels.com/photos/448828/pexels-photo-448828.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
 
 function ContentDisplay({ route }) {
+  const { content, title, picLink } = route.params;
   return (
-    <ScrollView>
+    <ScrollView style={{ flex: 1, backgroundColor: COLORS.black }}>
       <View style={styles.screenStyle}>
         <StatusBar style="dark" />
 
         {/* Image */}
         <Image
-          source={{ uri: dummyUrl }}
+          source={{ uri: picLink }}
           style={{ width: 300, height: 200, borderRadius: 12 }}
         />
 
         {/* Title */}
         <View style={styles.titleContainer}>
-          <Text style={styles.titleStyle}>7 Ways You Can Be Safer on Site</Text>
+          <Text style={styles.titleStyle}>{title}</Text>
         </View>
 
         {/* Content */}
         <View style={styles.contentContainer}>
-          <Text style={{ fontSize: 16 }}>{EX_BLOG_POST}</Text>
+          <Text style={{ fontSize: 16 }}>{content}</Text>
         </View>
       </View>
     </ScrollView>
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.black,
     flex: 1,
     alignItems: "center",
-    paddingTop: 40,
+    paddingTop: 20,
   },
   titleContainer: {
     marginHorizontal: 30,

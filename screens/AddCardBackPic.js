@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from "react";
 import {
+  Button,
+  Image,
   View,
   Text,
   StyleSheet,
-  Button,
-  Image,
+  Platform,
   Pressable,
   TextInput,
   ScrollView,
+  AvoidingView,
+  KeyboardAvoidingView,
   TouchableOpacity,
 } from "react-native";
-import firebase from "firebase/compat";
-import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import COLORS from "../misc/COLORS";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+
+import firebase from "firebase/compat";
 
 // import firebase from "firebase/compat/app";
 import "firebase/compat/database";
@@ -38,13 +42,25 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-export default function CreateProfilePicture({ navigation }) {
+export default function AddCardBack({ navigation, route }) {
+  const { title } = route.params;
+
+  // NEEDS TO PUSH IMGURLBACK TO USER - CARDS COLLECTION
   const [user, setUser] = useState(null);
   const [image, setImage] = useState(null);
   const [newUrl, setNewUrl] = useState("Hello");
-  const [title, setTitle] = useState("exTitle");
+  const [inputDd, setInputDd] = useState("");
+  const [inputMm, setInputMm] = useState("");
+  const [inputYyyy, setInputYyyy] = useState("");
+  const [inputDate, setInputDate] = useState("");
+
+  const setInputData = `${inputYyyy}-${setInputMm}-${inputDd}`;
+
+  const expiryDateInDate = new Date(setInputData);
 
   const navigationHndl = useNavigation();
+
+  const selectedDate = new Date(inputYyyy, inputMm - 1, inputDd);
 
   // Get User Info
   useEffect(() => {
@@ -76,16 +92,18 @@ export default function CreateProfilePicture({ navigation }) {
     }
   };
 
-  // Update Profile Picture in User object
-  const updateUserProfObjHandler = async (imageUrl) => {
+  // Update Back Card Url in User Card object
+  const updateCardBackUrlInUserCardObject = async (imageUrl) => {
     try {
       const collectionRef = firebase
         .firestore()
         .collection("users")
-        .doc(user.uid);
+        .doc(user.uid)
+        .collection("cards")
+        .doc(title);
       // .collection("UserData");
       await collectionRef.update({
-        profPic: imageUrl,
+        backImageProfilePic: imageUrl,
       });
       console.log("Data added to Firestore:");
     } catch (error) {
@@ -113,17 +131,20 @@ export default function CreateProfilePicture({ navigation }) {
       const imageRef = ref(storage, `images/${imageName}`);
       await uploadBytes(imageRef, blob).then(async (snapshot) => {
         let imgUrl = await getDownloadURL(imageRef).then((res) => {
-          updateUserProfObjHandler(res);
+          updateCardBackUrlInUserCardObject(res);
           const { uid } = firebase.auth().currentUser;
           firebase
             .firestore()
             .collection("users")
             .doc(uid)
-            .collection("profpics")
-            .add(
+            .collection("cardsBack")
+            .doc(title)
+            .set(
               {
-                imageUrl: res,
-                title: title ? title : "",
+                // imageUrl: res,
+                // title: title ? title : "",
+                // expiryDate: selectedDate,
+                backImgUrl: res,
                 // Add more fields as needed
               }
               // { merge: true }
@@ -137,7 +158,8 @@ export default function CreateProfilePicture({ navigation }) {
             });
         });
         console.log("Uploaded a blob or file!");
-        navigationHndl.navigate("InitLogin");
+        alert("Congratulations, you've added a new card!");
+        navigationHndl.navigate("AllCards", {});
       });
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -145,110 +167,73 @@ export default function CreateProfilePicture({ navigation }) {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: COLORS.black }}>
-      <View style={styles.screenStyle}>
-        <Text
-          style={{
-            color: "white",
-            marginTop: 40,
-            textAlign: "center",
-            fontSize: 16,
-            fontWeight: "700",
-          }}
-        >
-          Choose Profile Picture
+    <View style={styles.screenStyle}>
+      <Text style={{ color: "white", marginBottom: 10 }}>
+        Add a photo of the back of your card (optional)
+      </Text>
+      <Text style={{ color: "white", fontSize: 18, fontWeight: "700" }}>
+        {title}
+      </Text>
+
+      {/* Select Image */}
+
+      <TouchableOpacity
+        onPress={pickImage}
+        style={{
+          paddingVertical: 15,
+          paddingHorizontal: 20,
+          backgroundColor: COLORS.mainGreen,
+          borderRadius: 6,
+          marginBottom: 20,
+          marginTop: 20,
+        }}
+      >
+        <Text style={{ fontSize: 16, fontWeight: "700" }}>
+          Select file - Back of Card
         </Text>
-        <Pressable
-          onPress={pickImage}
-          style={{
-            padding: 20,
-            alignItems: "center",
-            paddingTop: 60,
-            // backgroundColor: "white",
-          }}
-        >
-          <MaterialCommunityIcons
-            name="upload-lock"
-            size={72}
-            color={COLORS.mainGreen}
+      </TouchableOpacity>
+
+      <Pressable
+        onPress={() => navigation.navigate("AllCards")}
+        style={{ marginTop: 40 }}
+      >
+        <Text style={{ color: COLORS.mainGreen, fontSize: 18 }}>
+          Return to cards
+        </Text>
+      </Pressable>
+
+      {/* Image And */}
+      {image && (
+        <View style={{ alignItems: "center", marginTop: 30 }}>
+          <Image
+            source={{ uri: image }}
+            style={{
+              width: 270,
+              height: 180,
+              borderRadius: 12,
+              marginTop: 20,
+            }}
           />
-        </Pressable>
 
-        <Pressable
-          onPress={pickImage}
-          style={{
-            paddingVertical: 15,
-            paddingHorizontal: 20,
-            borderRadius: 12,
-            backgroundColor: COLORS.mainGreen,
-            alignSelf: "center",
-          }}
-        >
-          <Text style={{ fontWeight: "700" }}>Select Image</Text>
-        </Pressable>
-
-        {image && (
-          <View style={{ alignItems: "center", marginTop: 30 }}>
-            <Image
-              source={{ uri: image }}
-              style={{
-                width: 200,
-                height: 200,
-                borderRadius: 100,
-                // marginTop: 20,
-                borderWidth: 3,
-                borderColor: COLORS.lightGreen,
-              }}
-            />
-            {/* <Text style={{ color: "white" }}>{`${newUrl}`}</Text> */}
-            {/* <View style={{ marginTop: 30 }}>
-              <TextInput
-                style={{
-                  backgroundColor: "white",
-                  width: 200,
-                  height: 40,
-                  paddingLeft: 20,
-                  borderRadius: 4,
-                }}
-                value={title}
-                onChangeText={(text) => {
-                  setTitle(text);
-                }}
-              />
-            </View> */}
-
-            <TouchableOpacity
-              style={{
-                backgroundColor: COLORS.mainGreen,
-                paddingVertical: 15,
-                paddingHorizontal: 20,
-                marginTop: 20,
-                alignSelf: "center",
-                // marginBottom: 20,
-                borderRadius: 6,
-              }}
-              onPress={() => {
-                uploadImage(image, `${Date.now()}_photo`, "cards", newUrl);
-              }}
-            >
-              <Text style={{ fontWeight: "700" }}>Save & Submit Image</Text>
-            </TouchableOpacity>
-
-            <Text
-              style={{
-                color: "white",
-                marginTop: 10,
-                marginHorizontal: 30,
-                textAlign: "center",
-              }}
-            >
-              When updating your profile, you may be asked to log in for
-              security
-            </Text>
-          </View>
-        )}
-      </View>
-    </ScrollView>
+          <TouchableOpacity
+            style={{
+              backgroundColor: COLORS.mainGreen,
+              paddingVertical: 15,
+              paddingHorizontal: 25,
+              borderRadius: 4,
+              alignSelf: "center",
+              marginBottom: 40,
+              marginTop: 40,
+            }}
+            onPress={() => {
+              uploadImage(image, `${Date.now()}_photo`, "cards", title);
+            }}
+          >
+            <Text style={{ fontWeight: "700" }}>Submit & Save</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -256,5 +241,7 @@ const styles = StyleSheet.create({
   screenStyle: {
     flex: 1,
     backgroundColor: COLORS.black,
+    alignItems: "center",
+    paddingTop: 120,
   },
 });

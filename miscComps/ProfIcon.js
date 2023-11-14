@@ -1,10 +1,16 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  TouchableOpacity,
+} from "react-native";
 import COLORS from "../misc/COLORS";
 import { FontAwesome } from "@expo/vector-icons";
 export default function ProfIcon({ title, link, iconName }) {
   return (
-    <Pressable onPress={link} style={styles.container}>
+    <TouchableOpacity onPress={link} style={styles.container}>
       <View
         style={{
           flexDirection: "row",
@@ -45,7 +51,7 @@ export default function ProfIcon({ title, link, iconName }) {
           View All
         </Text>
       </View>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 

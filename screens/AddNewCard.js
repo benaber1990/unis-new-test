@@ -9,7 +9,9 @@ import {
   Pressable,
   TextInput,
   ScrollView,
+  AvoidingView,
   KeyboardAvoidingView,
+  TouchableOpacity,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import COLORS from "../misc/COLORS";
@@ -26,13 +28,13 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 //FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyChtonwBnG-Jzs-gMJRbTChiv-mwt13rNY",
-  authDomain: "unis-1.firebaseapp.com",
-  projectId: "unis-1",
-  storageBucket: "unis-1.appspot.com",
-  messagingSenderId: "500039576121",
-  appId: "1:500039576121:web:af595bd3bc72422d4fbbe8",
-  measurementId: "G-HY5WS3ZXYD",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APPID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 //FIREBASE APP
@@ -56,6 +58,8 @@ export default function AddNewCard() {
 
   const navigationHndl = useNavigation();
 
+  const selectedDate = new Date(inputYyyy, inputMm - 1, inputDd);
+
   // Get User Info
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
@@ -74,7 +78,7 @@ export default function AddNewCard() {
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1,
+      quality: 0,
     });
 
     // console.log(result);
@@ -107,17 +111,24 @@ export default function AddNewCard() {
       await uploadBytes(imageRef, blob).then(async (snapshot) => {
         let imgUrl = await getDownloadURL(imageRef).then((res) => {
           const { uid } = firebase.auth().currentUser;
-          firebase
+          const collectionRef = firebase
             .firestore()
             .collection("users")
             .doc(uid)
             .collection("cards")
-            .doc(title)
+            .doc();
+          collectionRef
             .set(
               {
                 imageUrl: res,
                 title: title ? title : "",
-                expiryDate: "12345",
+                expiryDate: selectedDate,
+                documentId: collectionRef.id,
+                category: "",
+                hideNot: false,
+                message: "",
+                collection: "cards",
+
                 // Add more fields as needed
               }
               // { merge: true }
@@ -131,7 +142,13 @@ export default function AddNewCard() {
             });
         });
         console.log("Uploaded a blob or file!");
-        navigationHndl.navigate("HomeScreen");
+        console.log("EXPIRY DATE:", selectedDate);
+        alert(
+          "Congratulations, you've added a new card! Please add the back of your card next (optional)"
+        );
+        navigationHndl.navigate("AddCardBack", {
+          title,
+        });
       });
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -159,19 +176,19 @@ export default function AddNewCard() {
               </Text>
             </View>
 
-            <Pressable
+            <TouchableOpacity
               onPress={pickImage}
               style={{
                 paddingVertical: 15,
                 paddingHorizontal: 20,
-                backgroundColor: COLORS.lightGreen,
+                backgroundColor: COLORS.mainGreen,
                 borderRadius: 6,
               }}
             >
               <Text style={{ fontSize: 16, fontWeight: "700" }}>
-                Select Your File
+                Select file - Front of Card
               </Text>
-            </Pressable>
+            </TouchableOpacity>
 
             {image && (
               <View style={{ alignItems: "center", marginTop: 30 }}>
@@ -276,7 +293,7 @@ export default function AddNewCard() {
                         borderRadius: 4,
                         alignSelf: "center",
                         color: "white",
-                        fontSize: 16,
+                        // fontSize: 16,
                         marginLeft: 10,
                       }}
                       keyboardType="numeric"
@@ -290,13 +307,13 @@ export default function AddNewCard() {
                   </View>
                 </View>
 
-                <Pressable
+                <TouchableOpacity
                   style={{
                     backgroundColor: COLORS.mainGreen,
                     paddingVertical: 15,
                     paddingHorizontal: 25,
                     borderRadius: 4,
-                    marginTop: 20,
+                    marginTop: 30,
                     alignSelf: "center",
                     marginBottom: 40,
                   }}
@@ -304,8 +321,10 @@ export default function AddNewCard() {
                     uploadImage(image, `${Date.now()}_photo`, "cards", title);
                   }}
                 >
-                  <Text style={{ fontWeight: "700" }}>Submit Document</Text>
-                </Pressable>
+                  <Text style={{ fontWeight: "700" }}>
+                    Submit & Add Back Image
+                  </Text>
+                </TouchableOpacity>
               </View>
             )}
           </View>

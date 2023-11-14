@@ -8,6 +8,8 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
+  TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import COLORS from "../misc/COLORS";
 import { Ionicons } from "@expo/vector-icons";
@@ -23,16 +25,16 @@ import "firebase/auth";
 
 //FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyChtonwBnG-Jzs-gMJRbTChiv-mwt13rNY",
-  authDomain: "unis-1.firebaseapp.com",
-  projectId: "unis-1",
-  storageBucket: "unis-1.appspot.com",
-  messagingSenderId: "500039576121",
-  appId: "1:500039576121:web:af595bd3bc72422d4fbbe8",
-  measurementId: "G-HY5WS3ZXYD",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APPID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-//FIREBASE APP
+//FIREBASE APPi
 
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
@@ -66,11 +68,18 @@ function CreateAccountScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }}>
+    <ScrollView
+      style={{
+        flex: 1,
+        backgroundColor: COLORS.black,
+        paddingBottom: 80,
+        paddingTop: 30,
+      }}
+    >
       <Pressable onPress={Keyboard.dismiss} style={styles.screenStyle}>
         {/* Logo */}
-        <View style={{ marginBottom: 40 }}>
-          <UnisLogo height={200} width={200} />
+        <View style={{ marginBottom: 20 }}>
+          <UnisLogo height={120} width={120} />
         </View>
 
         <View style={{ marginBottom: 30 }}>
@@ -91,28 +100,39 @@ function CreateAccountScreen({ navigation }) {
         )}
 
         {/* Email */}
-        <View style={{ marginBottom: 15 }}>
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={(text) => setEmail(text)}
-            placeholder="Your Email Address"
-            placeholderTextColor={"lightgrey"}
-            autoCapitalize="none"
-          />
-        </View>
+        <KeyboardAvoidingView
+          // behavior="padding"
+          style={{
+            flex: 1,
+            alignItems: "center",
+            backgroundColor: COLORS.black,
+          }}
+        >
+          <View style={{ marginBottom: 15 }}>
+            <TextInput
+              style={styles.input}
+              value={email}
+              onChangeText={(text) => setEmail(text)}
+              placeholder="Your Email Address"
+              placeholderTextColor={"lightgrey"}
+              autoCapitalize="none"
+            />
+          </View>
 
-        {/* Password */}
-        <View style={{ flexDirection: "row", marginBottom: 5 }}>
-          <TextInput
-            style={[styles.input, { width: 300 }]}
-            value={password}
-            onChangeText={(text) => setPassword(text)}
-            secureTextEntry
-            placeholder="Password. Min 8 Characters"
-            placeholderTextColor={"lightgrey"}
-          />
-          {/* <Pressable
+          {/* Password */}
+          <View style={{ flexDirection: "row", marginBottom: 5 }}>
+            <TextInput
+              style={[styles.input, { width: 300 }]}
+              value={password}
+              onChangeText={(text) => setPassword(text)}
+              secureTextEntry
+              placeholder="Password. Min 8 Characters"
+              placeholderTextColor={"lightgrey"}
+            />
+          </View>
+        </KeyboardAvoidingView>
+
+        {/* <Pressable
             onPress={() => setShowPassword((prevState) => !prevState)}
             style={{
               justifyContent: "center",
@@ -133,8 +153,6 @@ function CreateAccountScreen({ navigation }) {
               color="white"
             />
           </Pressable> */}
-        </View>
-
         {/* GDPR Checkbox */}
         <View
           style={{
@@ -165,7 +183,7 @@ function CreateAccountScreen({ navigation }) {
         </View>
 
         {/* Submit Button */}
-        <Pressable
+        <TouchableOpacity
           onPress={
             email.length > 3 && password.length > 6 && isChecked
               ? handleRegistration
@@ -182,9 +200,19 @@ function CreateAccountScreen({ navigation }) {
           ]}
         >
           <Text style={{ fontSize: 18, fontWeight: "600" }}>Submit</Text>
-        </Pressable>
+        </TouchableOpacity>
       </Pressable>
-    </KeyboardAvoidingView>
+
+      {/* Log in */}
+      <Pressable onPress={() => navigation.navigate("InitLogin")}>
+        <Text style={{ color: "white", textAlign: "center", marginTop: 30 }}>
+          Already have an account?{" "}
+          <Text style={{ textDecorationLine: "underline" }}>
+            Click here to log in
+          </Text>
+        </Text>
+      </Pressable>
+    </ScrollView>
   );
 }
 

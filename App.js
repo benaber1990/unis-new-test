@@ -52,6 +52,14 @@ import ComingSoonJobs from "./screens/ComingSoonJobs";
 import ComingSoonTraining from "./screens/ComingSoonTraining";
 import AdminPostScreen from "./screens/AdminPostScreen";
 import ExampleAnimate from "./screens/ExampleAnimate";
+import ScanQR from "./screens/ScanQR";
+import ScanQrDisplay from "./screens/ScanQRDisplay";
+import DeleteDocumentConfirm from "./screens/DeleteDocumentConfirm";
+import DeleteCardConfirm from "./screens/DeleteCardConfirm";
+import AddCardBack from "./screens/AddCardBackPic";
+import InductionMoreInfo from "./screens/InductionMoreInfo";
+import ExpiringInformation from "./screens/ExpiringInformation";
+import { NotificationProvider } from "./context/NotificationsContext";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -60,6 +68,7 @@ function MyTabs() {
   return (
     <Tab.Navigator
       screenOptions={{
+        gestureEnabled: false,
         headerShown: false,
         // tabBarShowLabel: false,
         tabBarActiveTintColor: COLORS.mainGreen,
@@ -76,6 +85,7 @@ function MyTabs() {
         name="Home"
         component={HomeScreen}
         options={{
+          gestureEnabled: false,
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={18} color={color} />
           ),
@@ -124,386 +134,492 @@ function MyTabs() {
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}
-      >
-        <Stack.Screen name="HomeScreen" component={MyTabs} />
-        <Stack.Screen name="InitLogin" component={InitLogin} />
-        <Stack.Screen
-          name="HRScreen"
-          component={HRScreen}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="DocsComingSoon"
-          component={DocsComingSoon}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="SiteScreen"
-          component={SiteScreen}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="Notifications"
-          component={NotificationsScreen}
-          options={{
-            headerShown: true,
-            title: "Notifications",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen name="ContentDisplay" component={ContentDisplay} />
-        <Stack.Screen
-          name="AllCards"
-          component={AllCards}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="AddNewCard"
-          component={AddNewCard}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="AllDocuments"
-          component={AllDocuments}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="AddNewDocument"
-          component={AddNewDocument}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="DrawingsScreen"
-          component={DrawingsScreen}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="DrawingDisplay"
-          component={DrawingDisplay}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="HealthScreen"
-          component={HealthScreen}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="InductionsScreen"
-          component={InductionsScreen}
-          options={{
-            headerShown: true,
-            title: "My Inductions",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="PermitsScreen"
-          component={PermitsScreen}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="PermitDisplay"
-          component={PermitDisplay}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="PermitSingle"
-          component={PermitSingle}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="ComingSoonExtra"
-          component={ComingSoonExtra}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="ComingSoonFriends"
-          component={ComingSoonFriends}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="ComingSoonJobs"
-          component={ComingSoonJobs}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="ComingSoonTraining"
-          component={ComingSoonTraining}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="ContactScreen"
-          component={ContactScreen}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen name="UpdateProfile" component={UpdateProfile} />
-        <Stack.Screen
-          name="CreateBio"
-          component={CreateBio}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen name="ConfirmLogOut" component={ConfirmLogOut} />
-        <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
-        <Stack.Screen name="CreateProfile" component={CreateProfile} />
-        <Stack.Screen
-          name="PasswordReset"
-          component={PasswordReset}
-          options={{
-            headerShown: true,
-            title: "Reset Your Password",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen name="TestUpload" component={TestUploadScreen} />
-        <Stack.Screen
-          name="NotDisplay"
-          component={NotDisplayListing}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen name="TestFetchImages" component={TestFetchImages} />
-        <Stack.Screen
-          name="InductionDisplay"
-          component={InductionDisplay}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen name="TCScreen" component={TCScreen} />
-        <Stack.Screen
-          options={{
-            headerShown: true,
-            title: "Update Your Profile Image",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-          name="UpdateProfileImage"
-          component={UpdateProfileImage}
-        />
-        <Stack.Screen
-          name="CreateProfilePicture"
-          component={CreateProfilePicture}
-        />
-        <Stack.Screen
-          name="CardDisplay"
-          component={CardDisplay}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="DocumentDisplay"
-          component={DocumentDisplay}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="HealthSafetyScreen"
-          component={HealthSafetyScreen}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="AdminPostScreen"
-          component={AdminPostScreen}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-        <Stack.Screen
-          name="ExampleAnimate"
-          component={ExampleAnimate}
-          options={{
-            headerShown: true,
-            title: "",
-            headerStyle: {
-              backgroundColor: COLORS.black,
-            },
-            headerTintColor: COLORS.mainGreen,
-          }}
-        />
-      </Stack.Navigator>
+      <NotificationProvider>
+        <Stack.Navigator
+          screenOptions={{ headerShown: false, gestureEnabled: false }}
+        >
+          <Stack.Screen
+            name="HomeScreen"
+            component={MyTabs}
+            options={{ gestureEnabled: false }}
+          />
+          <Stack.Screen
+            name="InitLogin"
+            component={InitLogin}
+            options={{ gestureEnabled: false }}
+          />
+          <Stack.Screen
+            name="HRScreen"
+            component={HRScreen}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="DocsComingSoon"
+            component={DocsComingSoon}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="SiteScreen"
+            component={SiteScreen}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="Notifications"
+            component={NotificationsScreen}
+            options={{
+              headerShown: true,
+              title: "Notifications",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ContentDisplay"
+            component={ContentDisplay}
+            options={{
+              headerShown: true,
+              title: "UNIS Content",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="AllCards"
+            component={AllCards}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="AddNewCard"
+            component={AddNewCard}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="AllDocuments"
+            component={AllDocuments}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="AddNewDocument"
+            component={AddNewDocument}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="DrawingsScreen"
+            component={DrawingsScreen}
+            options={{
+              headerShown: true,
+              title: "Your Drawings",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="DrawingDisplay"
+            component={DrawingDisplay}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ScanQr"
+            component={ScanQR}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="QrDisplay"
+            component={ScanQrDisplay}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HealthScreen"
+            component={HealthScreen}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="InductionsScreen"
+            component={InductionsScreen}
+            options={{
+              headerShown: true,
+              title: "My Inductions",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="PermitsScreen"
+            component={PermitsScreen}
+            options={{
+              headerShown: true,
+              title: "Your Permits",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="PermitDisplay"
+            component={PermitDisplay}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="PermitSingle"
+            component={PermitSingle}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ComingSoonExtra"
+            component={ComingSoonExtra}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ComingSoonFriends"
+            component={ComingSoonFriends}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ComingSoonJobs"
+            component={ComingSoonJobs}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ComingSoonTraining"
+            component={ComingSoonTraining}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ContactScreen"
+            component={ContactScreen}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="UpdateProfile"
+            component={UpdateProfile}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="CreateBio"
+            component={CreateBio}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen name="ConfirmLogOut" component={ConfirmLogOut} />
+          <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
+          <Stack.Screen name="CreateProfile" component={CreateProfile} />
+          <Stack.Screen
+            name="PasswordReset"
+            component={PasswordReset}
+            options={{
+              headerShown: true,
+              title: "Reset Your Password",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen name="TestUpload" component={TestUploadScreen} />
+          <Stack.Screen
+            name="NotDisplay"
+            component={NotDisplayListing}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen name="TestFetchImages" component={TestFetchImages} />
+          <Stack.Screen
+            name="InductionDisplay"
+            component={InductionDisplay}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen name="TCScreen" component={TCScreen} />
+          <Stack.Screen
+            options={{
+              headerShown: true,
+              title: "Update Your Profile Image",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+            name="UpdateProfileImage"
+            component={UpdateProfileImage}
+          />
+          <Stack.Screen
+            name="CreateProfilePicture"
+            component={CreateProfilePicture}
+          />
+          <Stack.Screen name="AddCardBack" component={AddCardBack} />
+          <Stack.Screen
+            name="DeleteDocumentConfirm"
+            component={DeleteDocumentConfirm}
+            options={{
+              headerShadowVisible: false,
+              headerShown: true,
+              title: "Delete Document",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: "tomato",
+            }}
+          />
+          <Stack.Screen
+            name="DeleteCardConfirm"
+            component={DeleteCardConfirm}
+            options={{
+              headerShadowVisible: false,
+              headerShown: true,
+              title: "Delete Card",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: "tomato",
+            }}
+          />
+          <Stack.Screen
+            name="CardDisplay"
+            component={CardDisplay}
+            options={{
+              headerShadowVisible: false,
+              headerShown: true,
+              title: "YOUR CARDS",
+              headerStyle: {
+                backgroundColor: COLORS.mainGreen,
+              },
+              headerTintColor: COLORS.black,
+            }}
+          />
+          <Stack.Screen
+            name="DocumentDisplay"
+            component={DocumentDisplay}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HealthSafetyScreen"
+            component={HealthSafetyScreen}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="AdminPostScreen"
+            component={AdminPostScreen}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="InductionMoreInfo"
+            component={InductionMoreInfo}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ExpiringInformation"
+            component={ExpiringInformation}
+            options={{
+              headerShown: true,
+              title: "Notifications",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ExampleAnimate"
+            component={ExampleAnimate}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+        </Stack.Navigator>
+      </NotificationProvider>
     </NavigationContainer>
   );
 }

@@ -6,12 +6,13 @@ import {
   Pressable,
   Share,
   ScrollView,
+  Image,
 } from "react-native";
 import COLORS from "../misc/COLORS";
-
+import { useIsFocused } from "@react-navigation/native";
 import QRCode from "react-native-qrcode-svg";
 import firebase from "firebase/compat";
-import { Entypo } from "@expo/vector-icons";
+import { Entypo, AntDesign } from "@expo/vector-icons";
 
 // import firebase from "firebase/compat/app";
 import "firebase/compat/database";
@@ -20,13 +21,13 @@ import UnisLogo from "../components/UnisLogo";
 
 //FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyChtonwBnG-Jzs-gMJRbTChiv-mwt13rNY",
-  authDomain: "unis-1.firebaseapp.com",
-  projectId: "unis-1",
-  storageBucket: "unis-1.appspot.com",
-  messagingSenderId: "500039576121",
-  appId: "1:500039576121:web:af595bd3bc72422d4fbbe8",
-  measurementId: "G-HY5WS3ZXYD",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APPID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 //FIREBASE APP
@@ -37,7 +38,20 @@ if (!firebase.apps.length) {
 
 function QRScreen({ navigation }) {
   const [data, setData] = useState();
+  const [userData, setUserData] = useState("");
   const [qrCode, setQRCode] = useState("123");
+  const { uid } = firebase.auth().currentUser;
+
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setIsVisible(true);
+    }, 2000);
+
+    // Cleanup the timeout to avoid memory leaks
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged((authUser) => {
@@ -55,11 +69,42 @@ function QRScreen({ navigation }) {
     return unsubscribe;
   }, []);
 
+  // Fetch User Data
+  const isFocused = useIsFocused();
+
+  const fetchData = async () => {
+    try {
+      const { uid } = firebase.auth().currentUser;
+      if (!uid) return;
+      const collectionRef = firebase.firestore().collection("users").doc(uid);
+      const snapshot = await collectionRef.get();
+      // console.log("snapshotdata", snapshot?.data());
+      // const fetchedData = snapshot.docs.map((doc) => ({
+      //   id: doc.id,
+      //   ...doc.data(),
+      // }));
+      // console.log("fetchedData", snapshot?.data());
+
+      setUserData(snapshot?.data());
+      console.log(uid);
+      // console.log("Hello");
+      // console.log(data);
+      // console.log(data[0].firstName);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [isFocused]);
+
   // Share By
   const onShare = async () => {
     try {
       const result = await Share.share({
-        message: "UNIS.One || This is my UNIS Profile",
+        message: `See my Unis Profile at https://unis.one/profile/view/${uid}`,
+        // message: "hello",
       });
       if (result.action === Share.sharedAction) {
         if (result.activityType) {
@@ -76,84 +121,161 @@ function QRScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.screenStyle}>
-      <Text
-        style={{
-          fontSize: 22,
-          fontWeight: "500",
-          color: "white",
-          marginBottom: 40,
-        }}
-      ></Text>
-      <Text
-        style={{
-          marginBottom: 20,
-          fontSize: 18,
-          fontWeight: "500",
-          color: "white",
-        }}
-      >
-        Your Unique{" "}
-        <Text style={{ color: COLORS.mainGreen, fontWeight: "700" }}>
-          UNIS{" "}
-        </Text>
-        QR Code
-      </Text>
+    <ScrollView
+      style={{
+        flex: 1,
+        paddingBottom: 60,
+        backgroundColor: COLORS.black,
+      }}
+      showsVerticalScrollIndicator={false}
+    >
+      {userData && (
+        <View style={styles.screenStyle}>
+          <Text
+            style={{
+              fontSize: 22,
+              fontWeight: "500",
+              color: "white",
+              marginBottom: 40,
+            }}
+          ></Text>
+          <Text
+            style={{
+              marginBottom: 20,
+              fontSize: 18,
+              fontWeight: "500",
+              color: "white",
+            }}
+          >
+            Your Unique{" "}
+            <Text style={{ color: COLORS.mainGreen, fontWeight: "700" }}>
+              UNIS{" "}
+            </Text>
+            QR Code
+          </Text>
 
-      <View style={{ marginTop: 30 }} />
+          <View style={{ marginTop: 30 }} />
 
-      {/* QR Code */}
-      {data?.uid.length > 1 && (
-        <View style={styles.cardStyle}>
-          <QRCode
-            value={data?.uid}
-            size={250}
-            backgroundColor={COLORS.mainGreen}
-          />
+          {/* QR Code */}
+          {data?.uid.length > 1 && (
+            <View style={styles.cardStyle}>
+              <QRCode
+                value={data?.uid}
+                size={250}
+                backgroundColor={COLORS.mainGreen}
+              />
+            </View>
+          )}
+          <Text style={{ color: "white", marginTop: 10, fontWeight: "500" }}>
+            The QR code that makes your job easier
+          </Text>
+
+          {/* Share Profile Button */}
+
+          <Pressable
+            onPress={onShare}
+            style={{
+              padding: 20,
+              marginTop: 20,
+              backgroundColor: COLORS.grey,
+              alignItems: "center",
+              borderRadius: 6,
+            }}
+          >
+            <Entypo
+              name="share-alternative"
+              size={32}
+              color={COLORS.mainGreen}
+            />
+            <Text
+              style={{
+                color: "white",
+                fontWeight: "600",
+                marginTop: 5,
+              }}
+            >
+              Share My Profile
+            </Text>
+          </Pressable>
+
+          {/* Scan QR Code */}
+          {userData?.isManager && (
+            <Pressable
+              onPress={() => navigation.navigate("ScanQr")}
+              style={{
+                padding: 20,
+                marginTop: 20,
+                backgroundColor: COLORS.grey,
+                alignItems: "center",
+                borderRadius: 6,
+              }}
+            >
+              <AntDesign name="scan1" size={32} color={COLORS.mainGreen} />
+              <Text
+                style={{
+                  color: "white",
+                  fontWeight: "600",
+                  marginTop: 5,
+                }}
+              >
+                SCAN QR Code
+              </Text>
+            </Pressable>
+          )}
+
+          <View style={{ marginTop: 20 }}>
+            <Text
+              style={{
+                color: "white",
+                fontWeight: "600",
+                textAlign: "center",
+                marginTop: 20,
+                marginBottom: 60,
+                // marginBottom: 40,
+              }}
+            >
+              You can display your QR to employers to share your profile QR Code
+            </Text>
+          </View>
         </View>
       )}
-      <Text style={{ color: "white", marginTop: 10, fontWeight: "500" }}>
-        Your Unique Unis QR
-      </Text>
 
-      {/* Share Profile Button */}
-
-      <Pressable
-        onPress={onShare}
-        style={{
-          padding: 20,
-          marginTop: 20,
-          backgroundColor: COLORS.grey,
-          alignItems: "center",
-          borderRadius: 6,
-        }}
-      >
-        <Entypo name="share-alternative" size={32} color={COLORS.mainGreen} />
-        <Text
+      {!userData && (
+        <View
           style={{
-            color: "white",
-            fontWeight: "600",
-            marginTop: 5,
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            backgroundColor: COLORS.black,
+            paddingTop: 120,
           }}
         >
-          Share My Profile
-        </Text>
-      </Pressable>
-
-      <View style={{ marginTop: 60 }}>
-        <Text
-          style={{
-            color: "white",
-            fontWeight: "600",
-            textAlign: "center",
-            marginHorizontal: 40,
-            // marginBottom: 40,
-          }}
-        >
-          You can display your QR to employers to share your profile QR Code
-        </Text>
-      </View>
-    </View>
+          <Image
+            source={require("../assets/unislogo.gif")}
+            style={{ height: 75, width: 75, resizeMode: "contain" }}
+          />
+          {isVisible && (
+            <View>
+              <Pressable
+                onPress={() => navigation.navigate("CreateProfile")}
+                style={{
+                  paddingVertical: 10,
+                  paddingHorizontal: 20,
+                  borderRadius: 6,
+                  backgroundColor: COLORS.mainGreen,
+                  marginVertical: 20,
+                }}
+              >
+                <Text style={{ fontWeight: "700" }}>Complete Account</Text>
+              </Pressable>
+              <Text style={{ color: "white", textAlign: "center" }}>
+                Please complete your account for the full UNIS experience
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
+    </ScrollView>
   );
 }
 

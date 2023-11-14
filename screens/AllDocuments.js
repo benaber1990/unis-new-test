@@ -27,13 +27,13 @@ import TextCardComp from "../miscComps/TextCardComp";
 
 //FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyChtonwBnG-Jzs-gMJRbTChiv-mwt13rNY",
-  authDomain: "unis-1.firebaseapp.com",
-  projectId: "unis-1",
-  storageBucket: "unis-1.appspot.com",
-  messagingSenderId: "500039576121",
-  appId: "1:500039576121:web:af595bd3bc72422d4fbbe8",
-  measurementId: "G-HY5WS3ZXYD",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APPID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 //FIREBASE APP
@@ -63,7 +63,7 @@ function AllDocuments({ navigation }) {
   // Fetch User Data
   const isFocused = useIsFocused();
 
-  // Fetch Document Images
+  // Fetch Document
   const fetchDocPics = () => {
     firebase
       .firestore()
@@ -87,29 +87,111 @@ function AllDocuments({ navigation }) {
     fetchDocPics();
   }, [isFocused]);
 
+  const calculateDaysDifference = (expiryDate) => {
+    const currentDate = new Date();
+    const expiryDateTime = expiryDate.toDate(); // Convert Firestore timestamp to JavaScript Date
+    const timeDifference = expiryDateTime - currentDate;
+    const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+    return daysDifference;
+  };
+
   // FlatList
-  const Item = ({ title, imageUrl }) => (
-    <Pressable
-      onPress={() =>
-        navigation.navigate("DocumentDisplay", {
-          title,
-          imageUrl,
-        })
-      }
-      style={{
-        marginBottom: 60,
-        alignSelf: "center",
-      }}
-    >
-      <Image source={{ uri: imageUrl }} style={{ height: 250, width: 200 }} />
-      <Text style={{ color: "white", marginTop: 10, fontSize: 18 }}>
-        {title}
-      </Text>
-    </Pressable>
-  );
+  const Item = ({ title, imageUrl, expiryDate }) => {
+    const daysDifference = calculateDaysDifference(expiryDate);
+
+    let statusText = "";
+    if (daysDifference < 0) {
+      statusText = "Expired";
+    } else if (daysDifference <= 30) {
+      statusText = "Expiring Soon";
+    }
+
+    return (
+      <Pressable
+        onPress={() =>
+          navigation.navigate("DocumentDisplay", {
+            title,
+            imageUrl,
+            statusText,
+            daysDifference,
+            expiryDate: expiryDate?.toDate().toLocaleDateString("en-GB"),
+          })
+        }
+        style={{
+          marginBottom: 60,
+          alignSelf: "center",
+          padding: 20,
+          borderRadius: 8,
+          backgroundColor: COLORS.grey,
+          paddingHorizontal: 30,
+        }}
+      >
+        <Image
+          source={{ uri: imageUrl }}
+          style={{
+            height: 250,
+            width: 200,
+            borderWidth: 2,
+            borderColor: COLORS.mainGreen,
+          }}
+        />
+        <Text
+          style={{
+            color: "white",
+            marginTop: 10,
+            fontSize: 18,
+            fontWeight: "700",
+          }}
+        >
+          {title}
+        </Text>
+        <Text
+          style={{
+            color: "white",
+            marginTop: 10,
+            fontSize: 12,
+            fontWeight: "300",
+          }}
+        >
+          Days until Expiry:{" "}
+          <Text style={{ fontWeight: "700" }}>{daysDifference}</Text>
+        </Text>
+        <Text
+          style={{
+            color: "tomato",
+            marginTop: 10,
+            fontSize: 12,
+            fontWeight: "700",
+          }}
+        >
+          {statusText}
+        </Text>
+        <Pressable
+          style={{ paddingTop: 20, flexDirection: "row" }}
+          onPress={() =>
+            navigation.navigate("DeleteDocumentConfirm", { title, imageUrl })
+          }
+        >
+          <Ionicons
+            name="ios-trash-bin-outline"
+            size={14}
+            color="lightgrey"
+            style={{ marginRight: 5 }}
+          />
+          <Text style={{ color: "white", fontSize: 12 }}>
+            Remove Certificate
+          </Text>
+        </Pressable>
+      </Pressable>
+    );
+  };
 
   const renderItem = ({ item }) => (
-    <Item title={item.data.title} imageUrl={item.data.imageUrl} />
+    <Item
+      title={item.data.title}
+      imageUrl={item.data.imageUrl}
+      expiryDate={item.data.expiryDate}
+    />
   );
 
   return (
@@ -123,7 +205,7 @@ function AllDocuments({ navigation }) {
             marginHorizontal: 30,
           }}
         >
-          {!contacts && (
+          {/* {!contacts && (
             <Text
               style={{
                 color: COLORS.lightGreen,
@@ -134,7 +216,7 @@ function AllDocuments({ navigation }) {
               It looks like you don't have any certificates saved yet. Click
               'Upload Certificate' to get started
             </Text>
-          )}
+          )} */}
         </View>
 
         {/* FlatList */}

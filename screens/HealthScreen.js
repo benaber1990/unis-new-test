@@ -7,6 +7,7 @@ import {
   Pressable,
   ScrollView,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import COLORS from "../misc/COLORS";
 import { useIsFocused } from "@react-navigation/native";
@@ -18,13 +19,13 @@ import "firebase/auth";
 
 //FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyChtonwBnG-Jzs-gMJRbTChiv-mwt13rNY",
-  authDomain: "unis-1.firebaseapp.com",
-  projectId: "unis-1",
-  storageBucket: "unis-1.appspot.com",
-  messagingSenderId: "500039576121",
-  appId: "1:500039576121:web:af595bd3bc72422d4fbbe8",
-  measurementId: "G-HY5WS3ZXYD",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APPID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 //FIREBASE APP
@@ -37,11 +38,11 @@ export default function HealthScreen() {
   const [text, setText] = useState("");
   const [user, setUser] = useState(null);
   const { uid } = firebase.auth().currentUser;
-  const [contacts, setContacts] = useState("");
+  const [contacts, setContacts] = useState([]);
 
   // Date and Time
-  const currentDate = new Date();
-  const uniqueId = currentDate.getTime().toString();
+  // const currentDate = new Date();
+  // const uniqueId = currentDate.getTime().toString();
 
   // Firebase User Info
   useEffect(() => {
@@ -55,18 +56,30 @@ export default function HealthScreen() {
 
   // Add Data to Firestore
   const addDataToFirestore = async () => {
+    const today = new Date();
+    // Format the date in DD.MM.YYYY format
+    const formattedDate =
+      today.getDate() +
+      "." +
+      (today.getMonth() + 1) +
+      "." +
+      today.getFullYear();
+
     try {
       const collectionRef = firebase
         .firestore()
         .collection("users")
         .doc(user.uid)
         .collection("healthrecords")
-        .doc(uniqueId);
+        .doc();
       // .collection("UserData");
       await collectionRef.set({
         healthRecord: text,
+        dateAdded: formattedDate,
+        // postedDate: currentDate,
       });
       console.log("Data added to Firestore:", user.uid);
+      fetchDocPics();
       submitAlert();
     } catch (error) {
       console.error("Error adding data to Firestore:", error);
@@ -76,7 +89,6 @@ export default function HealthScreen() {
   const isFocused = useIsFocused();
 
   // Fetch Data
-  // Fetch Document Images
   const fetchDocPics = () => {
     firebase
       .firestore()
@@ -139,9 +151,12 @@ export default function HealthScreen() {
 
         {/* Submit Button */}
         <View>
-          <Pressable onPress={addDataToFirestore} style={styles.buttonStyle}>
+          <TouchableOpacity
+            onPress={addDataToFirestore}
+            style={styles.buttonStyle}
+          >
             <Text style={{ fontWeight: "700" }}>Save & Submit</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -171,11 +186,16 @@ export default function HealthScreen() {
                 paddingLeft: 15,
                 paddingRight: 60,
                 borderRadius: 6,
-                backgroundColor: COLORS.lightGreen,
+                backgroundColor: COLORS.grey,
                 marginBottom: 20,
+                width: 250,
               }}
             >
-              <Text>{i.data.healthRecord}</Text>
+              <Text style={{ color: "lightgrey", marginBottom: 10 }}>
+                {i.data.dateAdded}
+              </Text>
+              <Text style={{ color: "white" }}>{i.data.healthRecord}</Text>
+              {/* <Text>{i.data.postedDate}</Text> */}
             </View>
           ))}
       </View>

@@ -7,6 +7,8 @@ import {
   TextInput,
   ScrollView,
   KeyboardAvoidingView,
+  TouchableOpacity,
+  Alert,
 } from "react-native";
 import firebase from "firebase/compat";
 import { useNavigation } from "@react-navigation/native";
@@ -20,13 +22,13 @@ import LogInErrMsg from "../miscComps/LogInErrMsg";
 
 //FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyChtonwBnG-Jzs-gMJRbTChiv-mwt13rNY",
-  authDomain: "unis-1.firebaseapp.com",
-  projectId: "unis-1",
-  storageBucket: "unis-1.appspot.com",
-  messagingSenderId: "500039576121",
-  appId: "1:500039576121:web:af595bd3bc72422d4fbbe8",
-  measurementId: "G-HY5WS3ZXYD",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APPID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 //FIREBASE APP
@@ -60,6 +62,20 @@ function UpdateProfile({ navigation }) {
 
   // Fetch User Data
   const isFocused = useIsFocused();
+
+  // Alert
+  const createAlert = () =>
+    Alert.alert(
+      "Profile Updated!",
+      "You've successfully updated your profile",
+      [
+        {
+          text: "Okay",
+          onPress: () => navigationHndl.navigate("Profile"),
+          style: "cancel",
+        },
+      ]
+    );
 
   const fetchData = async () => {
     try {
@@ -105,23 +121,24 @@ function UpdateProfile({ navigation }) {
         .collection("users")
         .doc(user.uid);
       await collectionRef.update({
-        firstName: firstName,
-        surname: surname,
-        gender: gender,
-        location: location,
-        postcode: postcode,
-        phoneNumber: phoneNumber,
-        DOB: dob,
-        jobTitle: jobTitle,
-        positionRole: position,
-        employmentType: employmentType,
+        firstName: firstName ? firstName : data.firstName,
+        surname: surname ? surname : data.surname,
+        gender: gender ? gender : data.gender,
+        location: location ? location : data.location,
+        postcode: postcode ? postcode : data.postcode,
+        phoneNumber: phoneNumber ? phoneNumber : data.phoneNumber,
+        // DOB: dob ? dob : data.dob,
+        jobTitle: jobTitle ? jobTitle : data.jobTitle,
+        // positionRole: position ? position : data.position,
+        employmentType: employmentType ? employmentType : data.employmentType,
         userId: user.uid,
+        hasCreatedProfile: true,
         // bio: "Your Bio Can Go Here",
         // Add more fields as needed
       });
       console.log("Data added to Firestore");
       console.log(location);
-      setSubMsg(true);
+      createAlert();
     } catch (error) {
       console.error("Error adding data to Firestore:", error);
       setDispErr(true);
@@ -139,25 +156,28 @@ function UpdateProfile({ navigation }) {
   }, []);
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }}>
-      <ScrollView>
-        <View style={styles.screenStyle}>
-          <View style={{ marginBottom: 20, paddingTop: 40 }}>
-            <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
-              Update Your Profile, {data?.firstName}
+    <ScrollView style={{ flex: 1, backgroundColor: COLORS.black }}>
+      <View style={styles.screenStyle}>
+        <View style={{ marginBottom: 20, paddingTop: 40 }}>
+          <Text style={{ color: "white", fontSize: 18, fontWeight: "500" }}>
+            Update Your Profile, {data?.firstName}
+          </Text>
+        </View>
+
+        {/* {data.map((item) => (
+            <Text key={item.id}>
+            {item.field1} - {item.field2}
             </Text>
-          </View>
+            // Render other fields as needed
+          ))} */}
 
-          {/* {data.map((item) => (
-        <Text key={item.id}>
-          {item.field1} - {item.field2}
-        </Text>
-        // Render other fields as needed
-      ))} */}
-
-          {/* Create Profile */}
-          <View>
-            {/* First Name */}
+        {/* Create Profile */}
+        <View>
+          {/* First Name */}
+          <KeyboardAvoidingView
+            behavior="padding"
+            style={{ flex: 1, backgroundColor: COLORS.black }}
+          >
             <View>
               <Text style={styles.label}>First Name</Text>
               <TextInput
@@ -265,50 +285,51 @@ function UpdateProfile({ navigation }) {
             </View>
             {/* {user && (
             <View>
-              <Text>{user.uid}</Text>
-              <Text>Yes</Text>
+            <Text>{user.uid}</Text>
+            <Text>Yes</Text>
             </View>
           )} */}
-          </View>
+            {dispErr && (
+              <View style={{ marginBottom: 4 }}>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    color: "tomato",
+                    marginBottom: 4,
+                    textAlign: "center",
+                  }}
+                >
+                  Invalid Create Profile Attempt. Please ensure all fields are
+                  completed
+                </Text>
+              </View>
+            )}
 
-          {/* Log In Error Message */}
-          {dispErr && (
-            <View style={{ marginBottom: 4 }}>
-              <Text
-                style={{
-                  fontSize: 12,
-                  color: "tomato",
-                  marginBottom: 4,
-                  textAlign: "center",
-                }}
-              >
-                Invalid Create Profile Attempt. Please ensure all fields are
-                completed
+            {/* Submit Button */}
+
+            <TouchableOpacity
+              onPress={addDataToFirestore}
+              style={{
+                padding: 20,
+                backgroundColor: COLORS.lightGreen,
+                paddingVertical: 12,
+                paddingHorizontal: 20,
+                borderRadius: 4,
+                marginBottom: 40,
+                marginTop: 20,
+                alignSelf: "center",
+              }}
+            >
+              <Text style={{ fontSize: 16, fontWeight: "600" }}>
+                Save & Submit
               </Text>
-            </View>
-          )}
-
-          {/* Submit Button */}
-
-          <Pressable
-            onPress={addDataToFirestore}
-            style={{
-              padding: 20,
-              backgroundColor: COLORS.lightGreen,
-              paddingVertical: 12,
-              paddingHorizontal: 20,
-              borderRadius: 4,
-              marginBottom: 40,
-              marginTop: 20,
-            }}
-          >
-            <Text style={{ fontSize: 16, fontWeight: "600" }}>
-              Save & Submit
-            </Text>
-          </Pressable>
+            </TouchableOpacity>
+          </KeyboardAvoidingView>
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+        {/* Log In Error Message */}
+      </View>
+    </ScrollView>
   );
 }
 

@@ -7,7 +7,7 @@ import {
   FlatList,
   Pressable,
   Image,
-  ImageBackground
+  ImageBackground,
 } from "react-native";
 import Animated, {
   useSharedValue,
@@ -25,13 +25,13 @@ import "firebase/auth";
 import { useIsFocused } from "@react-navigation/native";
 
 export default function ExmapleAnimate() {
-    const { uid } = firebase.auth().currentUser;
+  const { uid } = firebase.auth().currentUser;
 
-    const [contacts, setContacts] = useState("");
+  const [contacts, setContacts] = useState("");
 
-    const isFocused = useIsFocused();
+  const isFocused = useIsFocused();
 
-     // Firebase User Info
+  // Firebase User Info
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
       setUser(user);
@@ -41,29 +41,29 @@ export default function ExmapleAnimate() {
     return () => unsubscribe();
   }, []);
 
-    // Fetch Cards
-    const fetchDocPics = () => {
-        firebase
-          .firestore()
-          .collection("users")
-          .doc(uid)
-          .collection("cards")
-          .get()
-          .then((querySnapshot) => {
-            const contactsArray = [];
-            querySnapshot.forEach((doc) => {
-              contactsArray.push({
-                data: doc.data(),
-              });
-            });
-            setContacts(contactsArray);
-            console.log("success!", contacts);
+  // Fetch Cards
+  const fetchDocPics = () => {
+    firebase
+      .firestore()
+      .collection("users")
+      .doc(uid)
+      .collection("cards")
+      .get()
+      .then((querySnapshot) => {
+        const contactsArray = [];
+        querySnapshot.forEach((doc) => {
+          contactsArray.push({
+            data: doc.data(),
           });
-      };
-    
-      useEffect(() => {
-        fetchDocPics();
-      }, [isFocused]);
+        });
+        setContacts(contactsArray);
+        console.log("success!", contacts);
+      });
+  };
+
+  useEffect(() => {
+    fetchDocPics();
+  }, [isFocused]);
 
   const [hasPressed, setHasPressed] = useState(false);
 
@@ -119,12 +119,14 @@ export default function ExmapleAnimate() {
 
   return (
     <View style={styles.container}>
-      {contacts && <FlatList
-        data={EX_CARDS}
-        renderItem={renderItem}
-        showsVerticalScrollIndicator={false}
-        ListHeaderComponent={() => <View style={{ height: 30 }}></View>}
-      />}
+      {contacts && (
+        <FlatList
+          data={EX_CARDS}
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={() => <View style={{ height: 30 }}></View>}
+        />
+      )}
 
       {!hasPressed ? <Button onPress={handlePress} title="Click me" /> : null}
     </View>

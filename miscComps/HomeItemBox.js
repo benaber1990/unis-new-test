@@ -1,11 +1,17 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  TouchableOpacity,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../misc/COLORS";
 
 export default function HomeItemBox({ title, link, iconName }) {
   return (
-    <Pressable style={styles.containerStyle} onPress={link}>
+    <TouchableOpacity style={styles.containerStyle} onPress={link}>
       <Ionicons name={iconName} size={32} color={COLORS.mainGreen} />
       <Text
         style={{
@@ -17,7 +23,7 @@ export default function HomeItemBox({ title, link, iconName }) {
       >
         {title}
       </Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 

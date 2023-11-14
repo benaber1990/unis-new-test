@@ -10,6 +10,7 @@ import {
   ScrollView,
   FlatList,
   ImageBackground,
+  Platform,
 } from "react-native";
 import Animated, {
   useSharedValue,
@@ -31,13 +32,13 @@ import TextCardComp from "../miscComps/TextCardComp";
 
 //FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyChtonwBnG-Jzs-gMJRbTChiv-mwt13rNY",
-  authDomain: "unis-1.firebaseapp.com",
-  projectId: "unis-1",
-  storageBucket: "unis-1.appspot.com",
-  messagingSenderId: "500039576121",
-  appId: "1:500039576121:web:af595bd3bc72422d4fbbe8",
-  measurementId: "G-HY5WS3ZXYD",
+  apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.EXPO_PUBLIC_FIREBASE_APPID,
+  measurementId: process.env.EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 //FIREBASE APP
@@ -55,6 +56,17 @@ export default function AllCards({ navigation }) {
   const [contacts, setContacts] = useState("");
 
   const [hasExpanded, setHasExpanded] = useState(false);
+
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setIsVisible(true);
+    }, 2000);
+
+    // Cleanup the timeout to avoid memory leaks
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   // Animated
   const marginVal = useSharedValue(-60);
@@ -89,6 +101,7 @@ export default function AllCards({ navigation }) {
 
   // Fetch Cards
   const fetchDocPics = () => {
+    // Assume you have a timestamp from Firebase
     firebase
       .firestore()
       .collection("users")
@@ -116,11 +129,28 @@ export default function AllCards({ navigation }) {
     setModalVisible(true);
   };
 
+  const calculateDaysDifference = (expiryDate) => {
+    const currentDate = new Date();
+    const expiryDateTime = expiryDate.toDate(); // Convert Firestore timestamp to JavaScript Date
+    const timeDifference = expiryDateTime - currentDate;
+    const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+    return daysDifference;
+  };
+
   // FlatList Item Colours
   const myColors = [COLORS.grey, COLORS.lightGreen, COLORS.mainGreen];
 
   // FlatList
-  const Item = ({ id, index, title, imageUrl }) => {
+  const Item = ({ id, index, title, imageUrl, expiryDate }) => {
+    const daysDifference = calculateDaysDifference(expiryDate);
+
+    let statusText = "";
+    if (daysDifference < 0) {
+      statusText = "Expired";
+    } else if (daysDifference <= 30) {
+      statusText = "Expiring Soon";
+    }
+
     return (
       <Animated.View
         style={[
@@ -131,28 +161,60 @@ export default function AllCards({ navigation }) {
         ]}
       >
         <Pressable
-          onPress={() =>
-            navigation.navigate("CardDisplay", {
-              title: title,
-              imageUrl: imageUrl,
-              expiryDate: "123",
-            })
+          onPress={
+            hasExpanded
+              ? () =>
+                  navigation.navigate("CardDisplay", {
+                    title: title,
+                    imageUrl: imageUrl,
+                    statusText,
+                    daysDifference,
+                    expiryDate: expiryDate
+                      ?.toDate()
+                      .toLocaleDateString("en-GB"),
+                  })
+              : handlePress
           }
-          style={{
-            width: 350,
-            height: 250,
-            marginBottom: 20,
-            padding: 30,
-            justifyContent: "center",
-            backgroundColor: COLORS.grey,
-            borderWidth: 4,
-            borderColor: COLORS.mainGreen,
-            borderRadius: 22,
-          }}
         >
-          <Text style={{ color: "white", fontSize: 18, fontWeight: "700" }}>
-            {title}
-          </Text>
+          <ImageBackground
+            source={{ uri: imageUrl }}
+            style={{
+              width: 320,
+              height: 250,
+              marginBottom: 20,
+              justifyContent: "center",
+              paddingLeft: 20,
+            }}
+            imageStyle={{
+              backgroundColor: COLORS.grey,
+              borderWidth: 2,
+              borderColor: COLORS.mainGreen,
+              borderRadius: 22,
+            }}
+          >
+            <Text
+              style={{
+                color: "white",
+                fontSize: 18,
+                fontWeight: "700",
+                marginBottom: 20,
+              }}
+            >
+              {/* {expiryDate?.toDate().toLocaleDateString("en-GB")} */}
+              {title}
+            </Text>
+            <Text
+              style={{
+                color: "tomato",
+                fontSize: 12,
+                fontWeight: "700",
+                marginBottom: 20,
+              }}
+            >
+              {/* {expiryDate?.toDate().toLocaleDateString("en-GB")} */}
+              {statusText}
+            </Text>
+          </ImageBackground>
         </Pressable>
       </Animated.View>
     );
@@ -163,11 +225,15 @@ export default function AllCards({ navigation }) {
       title={item.data.title}
       id={item.data.id}
       imageUrl={item.data.imageUrl}
+      expiryDate={item.data.expiryDate}
     />
   );
 
   return (
-    <View style={styles.screenStyle}>
+    <Pressable
+      onPress={hasExpanded ? shrinkPress : handlePress}
+      style={styles.screenStyle}
+    >
       <View style={{ alignItems: "center" }}>
         <View
           style={{
@@ -175,7 +241,9 @@ export default function AllCards({ navigation }) {
             marginHorizontal: 30,
           }}
         >
-          {!contacts && (
+          {/* {!contacts && (
+        <View>
+          {isVisible && (
             <Text
               style={{
                 color: COLORS.lightGreen,
@@ -187,6 +255,8 @@ export default function AllCards({ navigation }) {
               'Upload Card' to get started
             </Text>
           )}
+            </View>
+          )} */}
         </View>
 
         {/* FlatList */}
@@ -218,7 +288,7 @@ export default function AllCards({ navigation }) {
                   </Text>
                 </Pressable>
 
-                {!hasExpanded ? (
+                {/* {!hasExpanded ? (
                   <Pressable
                     onPress={handlePress}
                     style={{
@@ -244,10 +314,27 @@ export default function AllCards({ navigation }) {
                   >
                     <Text>Close Cards</Text>
                   </Pressable>
+                )} */}
+              </View>
+            )}
+            ListFooterComponent={() => (
+              <View style={{ height: 160 }}>
+                {hasExpanded && (
+                  <Pressable
+                    onPress={shrinkPress}
+                    style={{
+                      paddingVertical: 12,
+                      paddingHorizontal: 30,
+                      borderRadius: 6,
+                      backgroundColor: COLORS.mainGreen,
+                      alignSelf: "center",
+                    }}
+                  >
+                    <Text style={{ fontWeight: "700" }}>Shrink Cards</Text>
+                  </Pressable>
                 )}
               </View>
             )}
-            ListFooterComponent={() => <View style={{ height: 160 }} />}
           />
         )}
 
@@ -305,7 +392,7 @@ export default function AllCards({ navigation }) {
               ))} */}
         </View>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
