@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Pressable,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import COLORS from "../misc/COLORS";
 import {
@@ -39,14 +40,25 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
+const windowWidth = Dimensions.get("window").width;
+
 export default function CardDisplay({ navigation, route }) {
-  const { title, imageUrl, expiryDate, statusText, daysDifference } =
-    route.params;
+  const {
+    title,
+    imageUrl,
+    expiryDate,
+    statusText,
+    daysDifference,
+    documentId,
+  } = route.params;
 
   const [isBack, setIsBack] = useState(false);
+  const [content, setContent] = useState();
 
   const [data, setData] = useState("");
+  const [newData, setNewData] = useState("");
   const { uid } = firebase.auth().currentUser;
+  const [backUrl, setBackUrl] = useState();
 
   const isFocused = useIsFocused();
 
@@ -59,7 +71,7 @@ export default function CardDisplay({ navigation, route }) {
         .collection("users")
         .doc(uid)
         .collection("cards")
-        .doc(title);
+        .doc(documentId);
       const snapshot = await collectionRef.get();
       // console.log("snapshotdata", snapshot?.data());
       // const fetchedData = snapshot.docs.map((doc) => ({
@@ -70,6 +82,8 @@ export default function CardDisplay({ navigation, route }) {
 
       setData(snapshot?.data());
       console.log("DATA", snapshot?.data());
+      setBackUrl(data.backImageUrl);
+
       // console.log("Hello");
       // console.log(data);
       // console.log(data[0].firstName);
@@ -82,145 +96,113 @@ export default function CardDisplay({ navigation, route }) {
     fetchData();
   }, [isFocused]);
 
+  const SquareItem = ({ title, text, bckCol }) => (
+    <View
+      style={{
+        width: 80,
+        height: 80,
+        borderRadius: 6,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: bckCol,
+        marginHorizontal: 10,
+        marginTop: 10,
+      }}
+    >
+      <Text style={{ fontSize: 18, fontWeight: "600" }}>{title}</Text>
+      <Text style={{ marginTop: 6, fontSize: 12 }}>{text}</Text>
+    </View>
+  );
+
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: COLORS.black }}
       showsVerticalScrollIndicator={false}
     >
       <View style={styles.screenStyle}>
-        <View
-          style={{
-            // height: 170,
-            backgroundColor: COLORS.mainGreen,
-            borderBottomRightRadius: 120,
-            borderBottomLeftRadius: 120,
-            paddingTop: 20,
-            paddingBottom: 30,
-          }}
-        >
+        <View style={{ flex: 1 }}>
           <View style={{ marginHorizontal: 30 }}>
-            <Image
-              style={{
-                width: "100%",
-                height: 200,
-                marginBottom: 15,
-                borderRadius: 18,
-                borderWidth: 3,
-                borderColor: COLORS.black,
-              }}
-              source={{ uri: isBack ? data?.backImageProfilePic : imageUrl }}
-            />
+            {data && (
+              <Image
+                style={{
+                  width: "100%",
+                  height: 200,
+                  marginBottom: 10,
+                  borderRadius: 18,
+                  borderWidth: 1,
+                  borderColor: COLORS.mainGreen,
+                }}
+                source={{ uri: isBack ? data?.backImageUrl : imageUrl }}
+              />
+            )}
 
             <TouchableOpacity
+              style={{ alignSelf: "center" }}
               onPress={() => setIsBack((prevState) => !prevState)}
             >
               <MaterialIcons
                 name="flip-camera-android"
                 size={32}
-                color={COLORS.black}
+                color={COLORS.mainGreen}
                 style={{ alignSelf: "center" }}
               />
             </TouchableOpacity>
+
+            {/* Information Card */}
+            <View
+              style={{
+                width: 300,
+                height: 200,
+                backgroundColor: "white",
+                borderRadius: 12,
+                alignItems: "center",
+                paddingVertical: 20,
+                alignSelf: "center",
+                marginTop: 20,
+              }}
+            >
+              <Text
+                style={{ fontSize: 18, fontWeight: "700", marginBottom: 8 }}
+              >
+                {title}
+              </Text>
+              <Text>
+                Days Until Expiry: <Text>84</Text>
+              </Text>
+            </View>
           </View>
         </View>
-
-        {/* Row B */}
-        <View
-          style={{
-            marginTop: 40,
-            paddingTop: 20,
-            backgroundColor: COLORS.grey,
-            flex: 1,
-            borderTopLeftRadius: 60,
-            paddingHorizontal: 30,
-            borderTopRightRadius: 60,
-            borderBottomRightRadius: 60,
-            borderBottomLeftRadius: 60,
-            marginBottom: 40,
-            marginHorizontal: 20,
-          }}
-        >
-          <Text
-            style={{
-              color: "white",
-              marginLeft: 20,
-              marginBottom: 10,
-              fontWeight: "700",
-              fontSize: 18,
-            }}
-          >
-            Card Information
-          </Text>
-          <Text
-            style={{
-              color: "white",
-              marginLeft: 20,
-              marginBottom: 10,
-              fontWeight: "700",
-              // fontSize: 18,
-            }}
-          >
-            Days until Expiry: {daysDifference}
-          </Text>
-          <Text
-            style={{
-              color: "tomato",
-              marginLeft: 20,
-              marginBottom: 10,
-              fontWeight: "700",
-              // fontSize: 18,
-            }}
-          >
-            {statusText}
-          </Text>
-
-          <View
-            style={{
-              paddingHorizontal: 30,
-              paddingVertical: 15,
-              backgroundColor: COLORS.grey,
-              width: 200,
-              alignSelf: "center",
-              borderRadius: 8,
-            }}
+        <View style={{ alignItems: "center", marginTop: 60 }}>
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate("AddCardBack", {
+                documentId,
+              })
+            }
           >
             <Text
               style={{
-                textAlign: "center",
-                color: "white",
-                fontWeight: "700",
-                fontSize: 18,
+                color: "lightgrey",
+                fontSize: 16,
+                fontWeight: "300",
+                marginBottom: 30,
               }}
             >
-              {title}
+              Add Back Image
             </Text>
-          </View>
-          <Text
-            style={{
-              color: "white",
-              marginTop: 20,
-              textAlign: "center",
-            }}
-          >
-            Expiry Date: <Text style={{ fontWeight: "700" }}>{expiryDate}</Text>
-          </Text>
+          </TouchableOpacity>
 
-          <Pressable
-            style={{ padding: 20, flexDirection: "row", alignItems: "center" }}
-            onPress={() =>
-              navigation.navigate("DeleteCardConfirm", { title, imageUrl })
-            }
-          >
-            <Ionicons
-              name="ios-trash-bin-outline"
-              size={14}
-              color="lightgrey"
-              style={{ marginRight: 5 }}
-            />
-            <Text style={{ color: "lightgrey", fontWeight: "700" }}>
-              Delete Card
+          <TouchableOpacity>
+            <Text
+              style={{
+                color: "lightgrey",
+                fontSize: 16,
+                fontWeight: "300",
+              }}
+            >
+              Delete this card
             </Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
@@ -229,7 +211,7 @@ export default function CardDisplay({ navigation, route }) {
 
 const styles = StyleSheet.create({
   screenStyle: {
-    flex: 1,
+    // flex: 1,
     backgroundColor: COLORS.black,
   },
 });

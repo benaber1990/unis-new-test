@@ -16,10 +16,17 @@ import Animated, {
   useSharedValue,
   withSpring,
   useAnimatedStyle,
+  FlipInEasyX,
+  FlipInXUp,
+  FadeIn,
+  FlipInXDown,
+  FlipOutEasyX,
+  Easing,
+  BounceIn,
 } from "react-native-reanimated";
 import EX_CARDS from "../misc/EX_CARDS";
 import COLORS from "../misc/COLORS";
-import { Ionicons, AntDesign, Feather, Octicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 // import firebase from "firebase/compat/app";
 import firebase from "firebase/compat";
@@ -50,6 +57,7 @@ export default function AllCards({ navigation }) {
   const [hasCards, setHasCards] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const [data, setData] = useState("");
   const { uid } = firebase.auth().currentUser;
@@ -58,15 +66,6 @@ export default function AllCards({ navigation }) {
   const [hasExpanded, setHasExpanded] = useState(false);
 
   const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      setIsVisible(true);
-    }, 2000);
-
-    // Cleanup the timeout to avoid memory leaks
-    return () => clearTimeout(timeoutId);
-  }, []);
 
   // Animated
   const marginVal = useSharedValue(-60);
@@ -141,7 +140,11 @@ export default function AllCards({ navigation }) {
   const myColors = [COLORS.grey, COLORS.lightGreen, COLORS.mainGreen];
 
   // FlatList
-  const Item = ({ id, index, title, imageUrl, expiryDate }) => {
+  const setShowModalHandler = () => {
+    setShowModal((prevState) => !prevState);
+  };
+
+  const Item = ({ id, index, title, imageUrl, expiryDate, documentId }) => {
     const daysDifference = calculateDaysDifference(expiryDate);
 
     let statusText = "";
@@ -152,56 +155,46 @@ export default function AllCards({ navigation }) {
     }
 
     return (
-      <Animated.View
-        style={[
-          {
-            //   marginBottom: 20,
-          },
-          animatedStyles,
-        ]}
-      >
+      <Animated.View style={animatedStyles}>
         <Pressable
           onPress={
             hasExpanded
               ? () =>
                   navigation.navigate("CardDisplay", {
-                    title: title,
-                    imageUrl: imageUrl,
+                    title,
+                    imageUrl,
+                    // expiryDate,
                     statusText,
-                    daysDifference,
-                    expiryDate: expiryDate
-                      ?.toDate()
-                      .toLocaleDateString("en-GB"),
+                    documentId,
+                    // daysDifference,
                   })
               : handlePress
           }
+          style={{}}
         >
           <ImageBackground
             source={{ uri: imageUrl }}
             style={{
               width: 320,
-              height: 250,
+              height: 200,
               marginBottom: 20,
               justifyContent: "center",
               paddingLeft: 20,
             }}
-            imageStyle={{
-              backgroundColor: COLORS.grey,
-              borderWidth: 2,
-              borderColor: COLORS.mainGreen,
-              borderRadius: 22,
-            }}
+            imageStyle={{ borderRadius: 12, borderWidth: 2 }}
           >
+            <View style={{ alignSelf: "flex-end", marginRight: 20 }}></View>
             <Text
               style={{
                 color: "white",
                 fontSize: 18,
                 fontWeight: "700",
                 marginBottom: 20,
+                marginTop: -50,
               }}
             >
               {/* {expiryDate?.toDate().toLocaleDateString("en-GB")} */}
-              {title}
+              {title.toUpperCase()}
             </Text>
             <Text
               style={{
@@ -226,6 +219,7 @@ export default function AllCards({ navigation }) {
       id={item.data.id}
       imageUrl={item.data.imageUrl}
       expiryDate={item.data.expiryDate}
+      documentId={item.data.documentId}
     />
   );
 
@@ -259,14 +253,91 @@ export default function AllCards({ navigation }) {
           )} */}
         </View>
 
+        {/* Modal */}
+        {/* {showModal && (
+          <Animated.View style={{}}>
+            <Pressable
+              onPress={setShowModalHandler}
+              style={{
+                marginTop: 80,
+                paddingVertical: 30,
+                paddingHorizontal: 30,
+                backgroundColor: "white",
+                borderRadius: 12,
+                padding: 20,
+                alignItems: "center",
+              }}
+            >
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                <Text style={{ fontSize: 22, fontWeight: "700" }}>
+                  Card Title
+                </Text>
+                <MaterialIcons
+                  name="verified-user"
+                  size={24}
+                  color={COLORS.mainGreen}
+                  style={{ marginLeft: 10 }}
+                />
+              </View>
+
+              <Image
+                source={{
+                  uri: "https://images.pexels.com/photos/2219035/pexels-photo-2219035.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+                }}
+                style={{
+                  width: 300,
+                  height: 200,
+                  borderRadius: 22,
+                  marginTop: 20,
+                }}
+              />
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  alignItems: "center",
+                  marginTop: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    paddingLeft: 20,
+                    marginRight: 20,
+                    fontSize: 16,
+                    fontWeight: "700",
+                  }}
+                >
+                  CSCS Card
+                </Text>
+                <Text>
+                  Expiry Date: <Text>13/12/2025</Text>
+                </Text>
+              </View>
+              <View
+                style={{
+                  width: 300,
+                  height: 2,
+                  backgroundColor: "lightgrey",
+                  marginTop: 10,
+                }}
+              />
+              <Image
+                source={{ uri: "https://i.imgur.com/rEVuNiG.png" }}
+                style={{ height: 100, width: 100, marginTop: 20 }}
+              />
+              <Text style={{ fontWeight: "600" }}>Share this QR Code</Text>
+            </Pressable>
+          </Animated.View>
+        )} */}
+
         {/* FlatList */}
-        {contacts && (
+        {contacts && !showModal && (
           <FlatList
             data={contacts}
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={() => (
-              <View style={{ marginBottom: 30 }}>
+              <View style={{ marginBottom: 20 }}>
                 <Pressable
                   onPress={() => navigation.navigate("AddNewCard")}
                   style={styles.buttonStyle}
@@ -288,53 +359,21 @@ export default function AllCards({ navigation }) {
                   </Text>
                 </Pressable>
 
-                {/* {!hasExpanded ? (
-                  <Pressable
-                    onPress={handlePress}
+                <Pressable onPress={hasExpanded ? shrinkPress : handlePress}>
+                  <Text
                     style={{
-                      backgroundColor: COLORS.lightGreen,
-                      paddingVertical: 15,
-                      paddingHorizontal: 25,
-                      borderRadius: 6,
-                      alignSelf: "center",
+                      fontSize: 16,
+                      fontWeight: "700",
+                      color: COLORS.mainGreen,
+                      textAlign: "center",
                     }}
                   >
-                    <Text>Expand Cards</Text>
-                  </Pressable>
-                ) : (
-                  <Pressable
-                    onPress={shrinkPress}
-                    style={{
-                      backgroundColor: COLORS.lightGreen,
-                      paddingVertical: 15,
-                      paddingHorizontal: 25,
-                      borderRadius: 6,
-                      alignSelf: "center",
-                    }}
-                  >
-                    <Text>Close Cards</Text>
-                  </Pressable>
-                )} */}
+                    {hasExpanded ? "Close" : "Open"} Wallet
+                  </Text>
+                </Pressable>
               </View>
             )}
-            ListFooterComponent={() => (
-              <View style={{ height: 160 }}>
-                {hasExpanded && (
-                  <Pressable
-                    onPress={shrinkPress}
-                    style={{
-                      paddingVertical: 12,
-                      paddingHorizontal: 30,
-                      borderRadius: 6,
-                      backgroundColor: COLORS.mainGreen,
-                      alignSelf: "center",
-                    }}
-                  >
-                    <Text style={{ fontWeight: "700" }}>Shrink Cards</Text>
-                  </Pressable>
-                )}
-              </View>
-            )}
+            ListFooterComponent={() => <View style={{ height: 160 }}></View>}
           />
         )}
 
@@ -405,6 +444,7 @@ const styles = StyleSheet.create({
   },
   itemStyle: {
     width: 300,
+
     backgroundColor: COLORS.lightGreen,
     marginBottom: 20,
     paddingLeft: 20,

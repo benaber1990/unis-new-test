@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
 } from "react-native";
 import COLORS from "../misc/COLORS";
+import { useIsFocused } from "@react-navigation/native";
 
 // Import Firebase
 import firebase from "firebase/compat";
@@ -38,16 +39,37 @@ export default function CreateBio({ navigation }) {
   const [user, setUser] = useState(null);
   const { uid } = firebase.auth().currentUser;
   const [contacts, setContacts] = useState("");
+  const isFocused = useIsFocused();
+  const [updateBio, setUpdateBio] = useState("");
+  const [data, setData] = useState();
 
   // Firebase User Info
   useEffect(() => {
     const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
       setUser(user);
-      console.log(user.uid);
     });
 
     return () => unsubscribe();
   }, []);
+
+  // Fetch bio data
+  const fetchData = async () => {
+    try {
+      const { uid } = firebase.auth().currentUser;
+      if (!uid) return;
+      const collectionRef = firebase.firestore().collection("users").doc(uid);
+      const snapshot = await collectionRef.get();
+      setData(snapshot?.data());
+      setBio(data?.bio);
+      console.log(data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [isFocused]);
 
   // Add Data to Firestore
   const addDataToFirestore = async () => {
@@ -58,14 +80,9 @@ export default function CreateBio({ navigation }) {
         .doc(user.uid);
       // .collection("UserData");
       await collectionRef.update({
-        userEx: "fdsffsd",
-        locationEx: "Liverpool",
-        numberEx: 124555,
-        booleanEx: true,
-        bio: bio,
-        otherData: "this here",
+        bio: updateBio,
       });
-      console.log("Data added to Firestore:", user.uid, bio);
+      console.log("Data added to Firestore:");
       submitAlert();
     } catch (error) {
       console.error("Error adding data to Firestore:", error);
@@ -101,15 +118,17 @@ export default function CreateBio({ navigation }) {
 
         {/*   Text Input */}
         <View>
-          <TextInput
-            value={bio}
-            onChangeText={(t) => setBio(t)}
-            style={styles.textInputStyle}
-            placeholder="Enter Your Bio Here"
-            placeholderTextColor={"lightgrey"}
-            multiline={true}
-            textAlignVertical="top"
-          />
+          {data && (
+            <TextInput
+              value={updateBio}
+              onChangeText={(t) => setUpdateBio(t)}
+              style={styles.textInputStyle}
+              placeholder={data?.bio}
+              placeholderTextColor={"lightgrey"}
+              multiline={true}
+              textAlignVertical="top"
+            />
+          )}
         </View>
 
         {/* Submit Button */}

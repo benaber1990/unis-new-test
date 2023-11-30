@@ -15,11 +15,12 @@ export default function TextCardComp({
     <View
       style={{
         backgroundColor: backCol,
-        borderRadius: 12,
+        borderRadius: 8,
         paddingVertical: 15,
         paddingHorizontal: 20,
         marginTop: 20,
         marginHorizontal: 20,
+        borderWidth: 2,
       }}
     >
       <Text style={{ fontWeight: "700", color: titleColor }}>{title}</Text>

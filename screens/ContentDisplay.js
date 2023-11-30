@@ -6,10 +6,13 @@ import {
   Image,
   SafeAreaView,
   ScrollView,
+  Dimensions,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import COLORS from "../misc/COLORS";
 import EX_BLOG_POST from "../misc/EX_BLOG POST";
+
+const windowWidth = Dimensions.get("window").width;
 
 const dummyUrl =
   "https://images.pexels.com/photos/448828/pexels-photo-448828.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
@@ -24,7 +27,7 @@ function ContentDisplay({ route }) {
         {/* Image */}
         <Image
           source={{ uri: picLink }}
-          style={{ width: 300, height: 200, borderRadius: 12 }}
+          style={{ width: "100%", height: 200 }}
         />
 
         {/* Title */}
@@ -34,7 +37,7 @@ function ContentDisplay({ route }) {
 
         {/* Content */}
         <View style={styles.contentContainer}>
-          <Text style={{ fontSize: 16 }}>{content}</Text>
+          <Text style={{ fontSize: 14 }}>{content}</Text>
         </View>
       </View>
     </ScrollView>
@@ -52,13 +55,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 30,
   },
   titleStyle: {
-    fontSize: 32,
+    fontSize: 22,
     fontWeight: "500",
     marginTop: 20,
     color: "white",
     textAlign: "center",
   },
   contentContainer: {
+    width: windowWidth - 10,
     padding: 20,
     borderRadius: 8,
     backgroundColor: "#fafafa",

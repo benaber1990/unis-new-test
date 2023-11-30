@@ -7,12 +7,18 @@ import {
   Share,
   ScrollView,
   Image,
+  TouchableOpacity,
 } from "react-native";
 import COLORS from "../misc/COLORS";
 import { useIsFocused } from "@react-navigation/native";
 import QRCode from "react-native-qrcode-svg";
 import firebase from "firebase/compat";
-import { Entypo, AntDesign } from "@expo/vector-icons";
+import { Entypo, AntDesign, Ionicons } from "@expo/vector-icons";
+import Animated, {
+  PinwheelIn,
+  PinwheelOut,
+  RotateInDownLeft,
+} from "react-native-reanimated";
 
 // import firebase from "firebase/compat/app";
 import "firebase/compat/database";
@@ -159,11 +165,16 @@ function QRScreen({ navigation }) {
           {/* QR Code */}
           {data?.uid.length > 1 && (
             <View style={styles.cardStyle}>
-              <QRCode
-                value={data?.uid}
-                size={250}
-                backgroundColor={COLORS.mainGreen}
-              />
+              <View
+                entering={RotateInDownLeft.duration(900)}
+                exiting={RotateInDownLeft}
+              >
+                <QRCode
+                  value={data?.uid}
+                  size={200}
+                  backgroundColor={COLORS.mainGreen}
+                />
+              </View>
             </View>
           )}
           <Text style={{ color: "white", marginTop: 10, fontWeight: "500" }}>
@@ -172,45 +183,23 @@ function QRScreen({ navigation }) {
 
           {/* Share Profile Button */}
 
-          <Pressable
-            onPress={onShare}
-            style={{
-              padding: 20,
-              marginTop: 20,
-              backgroundColor: COLORS.grey,
-              alignItems: "center",
-              borderRadius: 6,
-            }}
-          >
-            <Entypo
-              name="share-alternative"
-              size={32}
-              color={COLORS.mainGreen}
-            />
-            <Text
-              style={{
-                color: "white",
-                fontWeight: "600",
-                marginTop: 5,
-              }}
-            >
-              Share My Profile
-            </Text>
-          </Pressable>
-
-          {/* Scan QR Code */}
-          {userData?.isManager && (
+          <View style={{ flexDirection: "row" }}>
             <Pressable
-              onPress={() => navigation.navigate("ScanQr")}
+              onPress={onShare}
               style={{
-                padding: 20,
+                padding: 10,
                 marginTop: 20,
-                backgroundColor: COLORS.grey,
+                // backgroundColor: COLORS.grey,
                 alignItems: "center",
                 borderRadius: 6,
+                marginRight: 10,
               }}
             >
-              <AntDesign name="scan1" size={32} color={COLORS.mainGreen} />
+              <Entypo
+                name="share-alternative"
+                size={28}
+                color={COLORS.mainGreen}
+              />
               <Text
                 style={{
                   color: "white",
@@ -218,11 +207,48 @@ function QRScreen({ navigation }) {
                   marginTop: 5,
                 }}
               >
-                SCAN QR Code
+                Share My Profile
               </Text>
             </Pressable>
-          )}
 
+            {/* Scan QR Code */}
+
+            <Pressable
+              onPress={() => navigation.navigate("ScanQr")}
+              style={{
+                padding: 10,
+                marginLeft: 10,
+                marginTop: 20,
+                // backgroundColor: COLORS.grey,
+                alignItems: "center",
+                borderRadius: 6,
+              }}
+            >
+              <AntDesign name="scan1" size={28} color={COLORS.mainGreen} />
+              <Text
+                style={{
+                  color: "white",
+                  fontWeight: "600",
+                  marginTop: 5,
+                }}
+              >
+                Scan QR Code
+              </Text>
+            </Pressable>
+          </View>
+
+          {/* View Business Card */}
+          <TouchableOpacity
+            onPress={() => navigation.navigate("BusinessCard")}
+            style={{ marginTop: 20, alignItems: "center" }}
+          >
+            <Ionicons name="globe-outline" size={32} color={COLORS.mainGreen} />
+            <Text style={{ color: "white", fontWeight: "600", marginTop: 3 }}>
+              See My Pass Card
+            </Text>
+          </TouchableOpacity>
+
+          {/* Display Your QR Text */}
           <View style={{ marginTop: 20 }}>
             <Text
               style={{
@@ -240,6 +266,7 @@ function QRScreen({ navigation }) {
         </View>
       )}
 
+      {/* User Not Logged In */}
       {!userData && (
         <View
           style={{
@@ -247,30 +274,38 @@ function QRScreen({ navigation }) {
             alignItems: "center",
             justifyContent: "center",
             backgroundColor: COLORS.black,
-            paddingTop: 120,
+            // paddingTop: 120,
           }}
         >
           <Image
-            source={require("../assets/unislogo.gif")}
+            source={{ uri: "https://i.imgur.com/rDCre6r.png" }}
             style={{ height: 75, width: 75, resizeMode: "contain" }}
           />
           {isVisible && (
-            <View>
-              <Pressable
-                onPress={() => navigation.navigate("CreateProfile")}
-                style={{
-                  paddingVertical: 10,
-                  paddingHorizontal: 20,
-                  borderRadius: 6,
-                  backgroundColor: COLORS.mainGreen,
-                  marginVertical: 20,
-                }}
-              >
-                <Text style={{ fontWeight: "700" }}>Complete Account</Text>
-              </Pressable>
-              <Text style={{ color: "white", textAlign: "center" }}>
-                Please complete your account for the full UNIS experience
-              </Text>
+            <View
+              style={{
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <View style={{ alignItems: "center" }}>
+                <Pressable
+                  onPress={() => navigation.navigate("CreateProfileA")}
+                  style={{
+                    paddingVertical: 10,
+                    paddingHorizontal: 20,
+                    borderRadius: 6,
+                    backgroundColor: COLORS.mainGreen,
+                    marginVertical: 20,
+                  }}
+                >
+                  <Text style={{ fontWeight: "700" }}>Complete Account</Text>
+                </Pressable>
+                <Text style={{ color: "white", textAlign: "center" }}>
+                  Please complete your account for the full UNIS experience
+                </Text>
+              </View>
             </View>
           )}
         </View>
@@ -284,7 +319,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.black,
     flex: 1,
     alignItems: "center",
-    // paddingTop: 60,
+    paddingTop: 30,
   },
   cardStyle: {
     backgroundColor: COLORS.mainGreen,

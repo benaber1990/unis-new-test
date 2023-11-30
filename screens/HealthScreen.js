@@ -76,6 +76,7 @@ export default function HealthScreen() {
       await collectionRef.set({
         healthRecord: text,
         dateAdded: formattedDate,
+        recordId: collectionRef.id,
         // postedDate: currentDate,
       });
       console.log("Data added to Firestore:", user.uid);
@@ -124,6 +125,23 @@ export default function HealthScreen() {
     ]
   );
 
+  const deleteDocument = (documentId) => {
+    firebase
+      .firestore()
+      .collection("users")
+      .doc(uid)
+      .collection("healthrecords")
+      .doc(documentId)
+      .delete()
+      .then(() => {
+        fetchDocPics();
+        console.log("Document successfully deleted!");
+      })
+      .catch((error) => {
+        console.error("Error deleting document: ", error);
+      });
+  };
+
   return (
     <ScrollView style={{ flex: 1, backgroundColor: COLORS.black }}>
       {/* Header Info */}
@@ -136,6 +154,9 @@ export default function HealthScreen() {
           }}
         >
           You can use this screen to share health information about yourself.
+          Please be aware that this can be seen by other users such as Site
+          Managers. Only share relevant health information you are comfortable
+          with others seeing
         </Text>
 
         {/* Box Input Health */}
@@ -163,7 +184,7 @@ export default function HealthScreen() {
       {/* Prev Health Records */}
       <Text
         style={{
-          color: COLORS.lightGreen,
+          color: "#fafafa",
           marginLeft: 20,
           marginBottom: 20,
           fontWeight: "700",
@@ -184,9 +205,11 @@ export default function HealthScreen() {
                 paddingTop: 10,
                 paddingBottom: 10,
                 paddingLeft: 15,
-                paddingRight: 60,
+                paddingRight: 15,
                 borderRadius: 6,
                 backgroundColor: COLORS.grey,
+                borderWidth: 1,
+                borderColor: "white",
                 marginBottom: 20,
                 width: 250,
               }}
@@ -195,7 +218,13 @@ export default function HealthScreen() {
                 {i.data.dateAdded}
               </Text>
               <Text style={{ color: "white" }}>{i.data.healthRecord}</Text>
-              {/* <Text>{i.data.postedDate}</Text> */}
+
+              <TouchableOpacity
+                onPress={() => deleteDocument(i.data.recordId)}
+                style={{ alignSelf: "flex-end" }}
+              >
+                <Text style={{ color: "lightgrey" }}>Remove Record</Text>
+              </TouchableOpacity>
             </View>
           ))}
       </View>
@@ -211,10 +240,10 @@ const styles = StyleSheet.create({
     paddingTop: 20,
   },
   textInputStyle: {
-    backgroundColor: COLORS.grey,
+    borderWidth: 1,
+    borderColor: "white",
     width: 320,
     height: 150,
-    // fontWeight: "700",
     fontSize: 16,
     color: "white",
     borderRadius: 6,
@@ -228,7 +257,7 @@ const styles = StyleSheet.create({
   buttonStyle: {
     paddingVertical: 10,
     paddingHorizontal: 20,
-    borderRadius: 6,
+    borderRadius: 4,
     backgroundColor: COLORS.mainGreen,
     marginBottom: 40,
   },

@@ -58,7 +58,7 @@ function CreateAccountScreen({ navigation }) {
         const user = userCredential.user;
         // alert("k");
         console.log("Registration successful:", user);
-        navigationHndl.navigate("CreateProfile");
+        navigationHndl.navigate("CreateProfileA");
       })
       .catch((error) => {
         // Handle registration errors
@@ -169,7 +169,7 @@ function CreateAccountScreen({ navigation }) {
             color={isChecked ? COLORS.mainGreen : COLORS.lightGreen}
           />
           <Pressable onPress={() => navigation.navigate("TCScreen")}>
-            <Text style={{ color: "white" }}>
+            <Text style={{ color: "white", fontSize: 12 }}>
               By signing up to use UNIS, I accept the T&C's as{" "}
               <Text
                 style={{
@@ -235,10 +235,9 @@ const styles = StyleSheet.create({
   input: {
     height: 70,
     width: 300,
-    paddingLeft: 15,
+    paddingLeft: 25,
     backgroundColor: COLORS.grey,
-    borderTopLeftRadius: 4,
-    borderBottomLeftRadius: 4,
+    borderRadius: 35,
     fontSize: 16,
     color: "white",
   },

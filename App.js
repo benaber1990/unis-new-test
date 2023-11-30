@@ -60,6 +60,42 @@ import AddCardBack from "./screens/AddCardBackPic";
 import InductionMoreInfo from "./screens/InductionMoreInfo";
 import ExpiringInformation from "./screens/ExpiringInformation";
 import { NotificationProvider } from "./context/NotificationsContext";
+import BusinessCard from "./screens/BusinessCard";
+import CreateProfileA from "./screens/CreProfA";
+import ExpensesTracker from "./screens/ExpensesTracker";
+import ExpensesList from "./screens/ExpensesList";
+import ExpensesDisplay from "./screens/ExpensesDisplay";
+import HubAllContent from "./screens/HubAllContent";
+import ExpensesAddNew from "./screens/ExpensesAddNew";
+import ExpenseSingle from "./screens/ExpenseSingle";
+import HubFriendChatScreen from "./screens/HubFriendChatScreen";
+import HubFriendProfileScreen from "./screens/HubFriendProfileScreen";
+import HubFriendListScreen from "./screens/HubFriendsListScreen";
+import HubAIChatScreen from "./screens/HubAIChatScreen";
+import FindFriendsScreen from "./screens/HubFindFriends";
+import HubNonFriendUser from "./screens/HubNonFriendUser";
+import HubFriendRequests from "./screens/HubFriendRequests";
+import HubStartNewMessage from "./screens/HubStartNewMessage";
+import HubMessages from "./screens/HubMessages";
+import HubAddFriend from "./screens/HubAddFriend";
+import HubStoriesDisplay from "./screens/HubStoriesDisplay";
+import HubAddPost from "./screens/HubAddPost";
+import HubSearch from "./screens/HubSearch";
+import HubMyProfile from "./screens/HubMyProfile";
+import HubAddStory from "./screens/HubAddStory";
+import HubPostDisplay from "./screens/HubPostDisplay";
+import Projects from "./screens/Projects";
+import ProjectDisplay from "./screens/ProjectDisplay";
+import ProjectItemDisplay from "./screens/ProjectItemDisplay";
+import ProjectGallery from "./screens/ProjectGallery";
+import BusinessCardLearn from "./screens/BusinessCardLearn";
+import HubFriendAdd from "./screens/HubFriendAdd";
+import HubMyPosts from "./screens/HubMyPosts";
+import MyGallery from "./screens/MyGallery";
+import ExpensesCalendar from "./screens/ExpensesCalendar";
+import ExpAddFromGal from "./screens/ExpAddFromGal";
+import HubRemoveFriend from "./screens/HubRemoveFriend";
+import AddNewCardPhoto from "./screens/AddNewCardPhoto";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -184,6 +220,43 @@ export default function App() {
               headerTintColor: COLORS.mainGreen,
             }}
           />
+
+          <Stack.Screen
+            name="HubMyProfile"
+            component={HubMyProfile}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ExpAddFromGal"
+            component={ExpAddFromGal}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ExpensesCalendar"
+            component={ExpensesCalendar}
+            options={{
+              headerShown: true,
+              title: "Expenses Calendar",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
           <Stack.Screen
             name="Notifications"
             component={NotificationsScreen}
@@ -191,7 +264,7 @@ export default function App() {
               headerShown: true,
               title: "Notifications",
               headerStyle: {
-                backgroundColor: COLORS.black,
+                backgroundColor: COLORS.mainGreen,
               },
               headerTintColor: COLORS.mainGreen,
             }}
@@ -489,7 +562,18 @@ export default function App() {
               headerTintColor: COLORS.mainGreen,
             }}
           />
-          <Stack.Screen name="TCScreen" component={TCScreen} />
+          <Stack.Screen
+            name="TCScreen"
+            component={TCScreen}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
           <Stack.Screen
             options={{
               headerShown: true,
@@ -534,16 +618,42 @@ export default function App() {
             }}
           />
           <Stack.Screen
+            name="MyGallery"
+            component={MyGallery}
+            options={{
+              headerShadowVisible: false,
+              headerShown: true,
+              title: "Delete Card",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: "tomato",
+            }}
+          />
+          <Stack.Screen
             name="CardDisplay"
             component={CardDisplay}
             options={{
               headerShadowVisible: false,
               headerShown: true,
-              title: "YOUR CARDS",
+              title: "Your Cards",
               headerStyle: {
-                backgroundColor: COLORS.mainGreen,
+                backgroundColor: COLORS.black,
               },
-              headerTintColor: COLORS.black,
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ExpensesAddNew"
+            component={ExpensesAddNew}
+            options={{
+              headerShadowVisible: false,
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
             }}
           />
           <Stack.Screen
@@ -561,6 +671,18 @@ export default function App() {
           <Stack.Screen
             name="HealthSafetyScreen"
             component={HealthSafetyScreen}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubFriendAdd"
+            component={HubFriendAdd}
             options={{
               headerShown: true,
               title: "",
@@ -595,6 +717,254 @@ export default function App() {
             }}
           />
           <Stack.Screen
+            name="BusinessCard"
+            component={BusinessCard}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "Your Pass Card",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="BusinessCardLearn"
+            component={BusinessCardLearn}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "Your Contact Card",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ProjectGallery"
+            component={ProjectGallery}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "Project Gallery",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubFriendChat"
+            component={HubFriendChatScreen}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubFriendProfile"
+            component={HubFriendProfileScreen}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubAiChat"
+            component={HubAIChatScreen}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubMessages"
+            component={HubMessages}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "Your Messages",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubFriendRequests"
+            component={HubFriendRequests}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "Connection Requests",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubAddFriend"
+            component={HubAddFriend}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "Add as Connection",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubStartNewMessage"
+            component={HubStartNewMessage}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "Compose New Message",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubNonFriendUser"
+            component={HubNonFriendUser}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="FindFriends"
+            component={FindFriendsScreen}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "Find Connections",
+              headerStyle: {
+                backgroundColor: COLORS.mainGreen,
+              },
+              headerTintColor: COLORS.black,
+            }}
+          />
+          <Stack.Screen
+            name="HubStoriesDisplay"
+            component={HubStoriesDisplay}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              headerTransparent: true,
+              title: "",
+              headerStyle: {
+                // backgroundColor: COLORS.mainGreen,
+              },
+              headerTintColor: COLORS.black,
+            }}
+          />
+          <Stack.Screen
+            name="HubAddPost"
+            component={HubAddPost}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "Add New Post",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubSearch"
+            component={HubSearch}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubPostDisplay"
+            component={HubPostDisplay}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubAddStory"
+            component={HubAddStory}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "Add New Post",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubFriendsList"
+            component={HubFriendListScreen}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "Your Connections",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubMyPosts"
+            component={HubMyPosts}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "Your Posts",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
             name="ExpiringInformation"
             component={ExpiringInformation}
             options={{
@@ -607,10 +977,144 @@ export default function App() {
             }}
           />
           <Stack.Screen
+            name="HubAllContent"
+            component={HubAllContent}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
             name="ExampleAnimate"
             component={ExampleAnimate}
             options={{
               headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="CreateProfileA"
+            component={CreateProfileA}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ExpensesTracker"
+            component={ExpensesTracker}
+            options={{
+              headerShown: true,
+              title: "Expenses Tracker",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="AddNewCardPhoto"
+            component={AddNewCardPhoto}
+            options={{
+              headerShown: true,
+              title: "Expenses Tracker",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="HubRemoveFriend"
+            component={HubRemoveFriend}
+            options={{
+              headerShown: true,
+              title: "Remove Connection",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ProjectDisplay"
+            component={ProjectDisplay}
+            options={{
+              headerShown: true,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="Projects"
+            component={Projects}
+            options={{
+              headerShown: true,
+              title: "Your Projects",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ProjectItemDisplay"
+            component={ProjectItemDisplay}
+            options={{
+              headerShown: true,
+              title: "Your Projects",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ExpensesList"
+            component={ExpensesList}
+            options={{
+              headerShown: true,
+              title: "Expenses Tracker",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ExpensesDisplay"
+            component={ExpensesDisplay}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
+              title: "",
+              headerStyle: {
+                backgroundColor: COLORS.black,
+              },
+              headerTintColor: COLORS.mainGreen,
+            }}
+          />
+          <Stack.Screen
+            name="ExpenseSingle"
+            component={ExpenseSingle}
+            options={{
+              headerShown: true,
+              headerShadowVisible: false,
               title: "",
               headerStyle: {
                 backgroundColor: COLORS.black,

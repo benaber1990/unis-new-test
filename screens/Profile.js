@@ -8,12 +8,18 @@ import {
   ScrollView,
   Alert,
   KeyboardAvoidingView,
+  TouchableOpacity,
+  FlatList,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import COLORS from "../misc/COLORS";
-import { Ionicons, FontAwesome } from "@expo/vector-icons";
+import {
+  Ionicons,
+  FontAwesome,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import EX_PROFILE_DATA from "../misc/EX_PROFILE_DATA";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import firebase from "firebase/compat";
 import NOTIFICATIONS_DATA from "../misc/NOTIFICATIONS_DATA";
 
@@ -54,6 +60,7 @@ function Profile({ navigation }) {
   const [contacts, setContacts] = useState("");
   const [hasBio, setHasBio] = useState("");
   const [yesNots, setYesNots] = useState(false);
+  const [content, setContent] = useState();
 
   const [user, setUser] = useState(null);
 
@@ -88,18 +95,7 @@ function Profile({ navigation }) {
       if (!uid) return;
       const collectionRef = firebase.firestore().collection("users").doc(uid);
       const snapshot = await collectionRef.get();
-      // console.log("snapshotdata", snapshot?.data());
-      // const fetchedData = snapshot.docs.map((doc) => ({
-      //   id: doc.id,
-      //   ...doc.data(),
-      // }));
-      // console.log("fetchedData", snapshot?.data());
-
       setData(snapshot?.data());
-      console.log(data.bio);
-      // console.log("Hello");
-      // console.log(data);
-      // console.log(data[0].firstName);
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -222,85 +218,70 @@ function Profile({ navigation }) {
     fetchDocuments();
   }, []);
 
-  // Cards FlatList
-  const Item1 = ({ title, cat, description }) => (
-    <Pressable
-      onPress={() => navigation.navigate("AllCards")}
-      style={styles.item1Style}
-    >
-      <Image
-        source={{ uri: EX_PROFILE_DATA.profPic }}
-        style={{
-          height: 130,
-          width: 190,
-          borderRadius: 14,
-          borderWidth: 2,
-          borderColor: COLORS.yellow,
-        }}
-      />
-      <Text
-        style={{
-          color: "white",
-          marginTop: 8,
-          marginLeft: 5,
-          fontSize: 16,
-          fontWeight: "500",
-        }}
-      >
-        {title}
-      </Text>
-    </Pressable>
-  );
-
-  const renderItem1 = ({ item }) => (
-    <Item1 title={item.title} cat={item.cat} description={item.description} />
-  );
-
-  // Documents FlatList
-  const Item2 = ({ title, image }) => (
-    <Pressable
-      onPress={() => navigation.navigate("AllDocuments")}
-      style={styles.item2Style}
-    >
-      <MaterialCommunityIcons
-        name="file-certificate-outline"
-        size={24}
-        color="black"
-        style={{ marginBottom: 10 }}
-      />
-      <Image
-        source={{ uri: image }}
-        style={{
-          height: 130,
-          width: 190,
-          borderRadius: 14,
-          borderWidth: 2,
-          borderColor: COLORS.yellow,
-        }}
-      />
-      <Text>{title}</Text>
-    </Pressable>
-  );
-
-  const renderItem2 = ({ item }) => {
-    console.log("item", item);
-    return <Item2 title={item.title} image={item?.imageUrl} />;
+  // Get Posts Content & User Posts FlatList
+  const fetchContent = () => {
+    firebase
+      .firestore()
+      .collection("hubpostscontent")
+      .get()
+      .then((querySnapshot) => {
+        const contactsArray = [];
+        querySnapshot.forEach((doc) => {
+          contactsArray.push({
+            data: doc.data(),
+          });
+        });
+        setContent(contactsArray);
+        console.log(content);
+      });
   };
 
-  // Work Flatlist
-  const Item3 = ({ title, cat, description, imageLink }) => (
+  useEffect(() => {
+    fetchContent();
+  }, [isFocused]);
+
+  const Item = ({ title, picLink, category, content, userId }) => (
     <Pressable
-      onPress={() => navigation.navigate("AllMyWork")}
-      style={styles.item3Style}
+      onPress={() => navigation.navigate("HubMyPosts")}
+      style={{ marginTop: 10, marginRight: 20, maxWidth: 100 }}
     >
       <Image
-        source={{ uri: imageLink }}
-        style={{ height: 150, width: 150, borderRadius: 6 }}
+        source={{ uri: picLink }}
+        style={{ height: 120, width: 100, marginBottom: 5, borderRadius: 10 }}
       />
+      <Text style={{ color: "white" }}>{title}</Text>
     </Pressable>
   );
 
-  const renderItem3 = ({ item }) => <Item3 imageLink={item.imageLink} />;
+  const renderItem = ({ item }) => (
+    <Item title={item.data.title} picLink={item.data.picLink} />
+  );
+
+  // Icon Item
+  const IconItem = ({ title, onPress }) => (
+    <TouchableOpacity
+      onPress={onPress}
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        marginBottom: 10,
+        marginHorizontal: 10,
+        width: 150,
+        justifyContent: "space-between",
+      }}
+    >
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <Ionicons
+          name="person-circle-outline"
+          size={24}
+          color="white"
+          style={{ marginRight: 6 }}
+        />
+        <Text style={{ color: "white" }}>{title}</Text>
+      </View>
+      <MaterialCommunityIcons name="dots-vertical" size={20} color="white" />
+    </TouchableOpacity>
+  );
 
   return (
     <ScrollView
@@ -329,7 +310,8 @@ function Profile({ navigation }) {
               </Pressable>
             </View>
 
-            <View
+            <Pressable
+              onPress={() => navigation.navigate("BusinessCard")}
               style={{
                 justifyContent: "center",
                 marginRight: 40,
@@ -339,24 +321,29 @@ function Profile({ navigation }) {
               <Text
                 style={{
                   fontSize: 18,
-                  fontWeight: "500",
+                  fontWeight: "700",
                   color: "white",
-                  marginLeft: 20,
+
+                  textAlign: "center",
                 }}
               >
-                {data?.firstName}
+                Your Profile
               </Text>
-              <Text style={{ color: "lightgrey", marginLeft: 20 }}>
-                {data?.jobTitle}
+              <Text style={{ color: "lightgrey", textAlign: "center" }}>
+                The{" "}
+                <Text style={{ color: COLORS.mainGreen, fontWeight: "700" }}>
+                  UNIS
+                </Text>{" "}
+                Way
               </Text>
-            </View>
+            </Pressable>
             {!yesNots ? (
               <Pressable
                 onPress={() => navigation.navigate("ExpiringInformation")}
               >
                 <Ionicons
                   name="notifications"
-                  size={30}
+                  size={26}
                   color={COLORS.mainGreen}
                   style={{ marginRight: 10 }}
                 />
@@ -378,7 +365,7 @@ function Profile({ navigation }) {
                 />
                 <Ionicons
                   name="notifications"
-                  size={30}
+                  size={26}
                   color={COLORS.mainGreen}
                   style={{ marginRight: 10 }}
                 />
@@ -386,126 +373,100 @@ function Profile({ navigation }) {
             )}
           </View>
 
-          {/* Bio */}
-          <Pressable
-            onPress={() => navigation.navigate("CreateBio")}
-            style={styles.bioContainer}
+          {/* Profile Information Top */}
+          <View style={{ marginHorizontal: 40, marginTop: 20 }}>
+            <Text style={{ color: COLORS.mainGreen }}>Name</Text>
+            <Text style={{ color: "white", fontSize: 18, fontWeight: "700" }}>
+              {data?.firstName} {data?.surname}
+            </Text>
+            <View style={{ height: 10 }} />
+            <Text style={{ color: COLORS.mainGreen }}>Profession</Text>
+            <Text style={{ color: "white", fontSize: 18 }}>
+              {data?.jobTitle}
+            </Text>
+            <View style={{ height: 10 }} />
+            <Text style={{ color: COLORS.mainGreen }}>Bio</Text>
+            <Text style={{ color: "white" }}>{data?.bio}</Text>
+          </View>
+
+          {/* Icons */}
+          <View
+            style={{ flexDirection: "row", alignSelf: "center", marginTop: 20 }}
           >
-            <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <FontAwesome
-                name="pencil-square-o"
-                color="white"
-                size={16}
-                style={{ marginRight: 7 }}
+            <View style={{}}>
+              <IconItem
+                title="Connections"
+                onPress={() => navigation.navigate("HubFriendsList")}
               />
-              <Text
-                style={{ fontWeight: "500", color: "white", fontWeight: "700" }}
-              >
-                Your <Text style={{ color: COLORS.mainGreen }}>UNIS </Text>Bio
-              </Text>
-            </View>
-
-            <Pressable
-              onPress={() => navigation.navigate("CreateBio")}
-              style={{ padding: 10 }}
-            >
-              {/* <Text style={{ color: "white" }}>
-                Click here to create your bio
-              </Text> */}
-              <Text style={{ color: "white" }}>{data?.bio}</Text>
-            </Pressable>
-          </Pressable>
-
-          {/* My Cards */}
-          {/* <TitleSection title="My Cards" />
-        <Text>Profile Screen</Text>
-        <FlatList
-          data={EX_CARDS}
-          renderItem={renderItem1}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          ListHeaderComponent={() => <View style={{ marginLeft: 20 }} />}
-        /> */}
-
-          {/* 4 Cards */}
-          <View style={{ alignItems: "center" }}>
-            <View style={{ flexDirection: "row" }}>
-              <ProfIcon
-                iconName="vcard"
-                title="Cards"
-                link={() => navigation.navigate("AllCards")}
-              />
-              <ProfIcon
-                iconName="file-text-o"
-                title="Certs"
-                link={() => navigation.navigate("AllDocuments")}
+              <IconItem
+                title="Update Bio"
+                onPress={() => navigation.navigate("CreateBio")}
               />
             </View>
-            <View style={{ flexDirection: "row", marginTop: 10 }}>
-              <ProfIcon
-                iconName="file-image-o"
-                title="Drawings"
-                link={() => navigation.navigate("DrawingsScreen")}
+            <View>
+              <IconItem
+                title="Your Posts"
+                onPress={() => navigation.navigate("HubMyPosts")}
               />
-              <ProfIcon
-                iconName="heartbeat"
-                title="Health"
-                link={() => navigation.navigate("HealthScreen")}
-              />
-            </View>
-            <View style={{ flexDirection: "row", marginTop: 10 }}>
-              <ProfIcon
-                iconName="handshake-o"
-                title="Inductions"
-                link={() => navigation.navigate("InductionsScreen")}
-              />
-              <ProfIcon
-                iconName="certificate"
-                title="Permits"
-                link={() => navigation.navigate("PermitsScreen")}
+              <IconItem
+                title="Edit Profile"
+                onPress={() => navigation.navigate("UpdateProfile")}
               />
             </View>
           </View>
 
-          {/* Certificates */}
-          {/* <View style={{ marginTop: 30 }}>
-          <TitleSection title="My Certificates" />
-          <FlatList
-            data={certificates}
-            renderItem={renderItem2}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            ListHeaderComponent={() => <View style={{ marginLeft: 20 }} />}
-          />
-        </View> */}
-
-          {/* My Work  */}
-          {/* <View style={{ marginTop: 30 }}>
-          <TitleSection title="My Work" />
-          <FlatList
-            data={EX_WORK_DATA}
-            renderItem={renderItem3}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            ListHeaderComponent={() => <View style={{ marginLeft: 20 }} />}
-          />
-        </View> */}
-
-          {/* Shared Unis Profile */}
-          <View style={{ height: 40 }} />
-          <View>
-            <TextCardComp
-              backCol={COLORS.lightGreen}
-              title={"Your Shared UNIS Profile"}
-              body={
-                "Create your own unique UNIS profile that you can show to site managers and employers. Credentials ticked will be shared."
-              }
-              link={() => navigation.navigate("UpdateProfile")}
-              buttonText={"Manage Your Profile"}
-            />
+          {/* User Posts */}
+          <View style={{ margin: 10, marginTop: 20 }}>
+            <Text style={{ color: "white", fontSize: 16 }}>
+              Your{" "}
+              <Text style={{ fontWeight: "700", color: COLORS.mainGreen }}>
+                Hub
+              </Text>{" "}
+              Posts
+            </Text>
+            {content && (
+              <FlatList
+                data={content}
+                renderItem={renderItem}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                ListHeaderComponent={() => (
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("HubAddPost")}
+                    style={{ marginTop: 10, marginRight: 20 }}
+                  >
+                    <View
+                      style={{
+                        height: 120,
+                        width: 100,
+                        borderWidth: 1,
+                        borderColor: COLORS.mainGreen,
+                        borderRadius: 12,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: COLORS.grey,
+                      }}
+                    >
+                      <Ionicons
+                        name="md-add-circle-outline"
+                        size={32}
+                        color={COLORS.mainGreen}
+                      />
+                    </View>
+                    <Text
+                      style={{
+                        color: COLORS.lightGreen,
+                        textAlign: "center",
+                        marginTop: 5,
+                      }}
+                    >
+                      Add New Post
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            )}
           </View>
-
-          <View style={{ backgroundColor: COLORS.black, height: 100 }} />
         </View>
       )}
 
@@ -520,13 +481,13 @@ function Profile({ navigation }) {
           }}
         >
           <Image
-            source={require("../assets/unislogo.gif")}
+            source={{ uri: "https://i.imgur.com/rDCre6r.png" }}
             style={{ height: 75, width: 75, resizeMode: "contain" }}
           />
           {isVisible && (
-            <View>
+            <View style={{ alignItems: "center" }}>
               <Pressable
-                onPress={() => navigation.navigate("CreateProfile")}
+                onPress={() => navigation.navigate("CreateProfileA")}
                 style={{
                   paddingVertical: 10,
                   paddingHorizontal: 20,
@@ -550,7 +511,7 @@ function Profile({ navigation }) {
 
 const styles = StyleSheet.create({
   screenStyle: {
-    // flex: 1,
+    flex: 1,
     backgroundColor: COLORS.black,
     paddingTop: 60,
   },
@@ -566,10 +527,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 50,
     paddingVertical: 20,
     borderRadius: 8,
-    marginTop: 20,
+    marginTop: 10,
     marginBottom: 20,
     marginHorizontal: 20,
     width: 300,
+    borderWidth: 1,
   },
   item1Style: {
     marginRight: 30,

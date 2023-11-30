@@ -17,6 +17,7 @@ import * as ImagePicker from "expo-image-picker";
 import COLORS from "../misc/COLORS";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { useIsFocused } from "@react-navigation/native";
 
 import firebase from "firebase/compat";
 
@@ -43,24 +44,21 @@ if (!firebase.apps.length) {
 }
 
 export default function AddCardBack({ navigation, route }) {
-  const { title } = route.params;
+  const { documentId } = route.params;
 
   // NEEDS TO PUSH IMGURLBACK TO USER - CARDS COLLECTION
   const [user, setUser] = useState(null);
   const [image, setImage] = useState(null);
   const [newUrl, setNewUrl] = useState("Hello");
-  const [inputDd, setInputDd] = useState("");
-  const [inputMm, setInputMm] = useState("");
-  const [inputYyyy, setInputYyyy] = useState("");
   const [inputDate, setInputDate] = useState("");
 
-  const setInputData = `${inputYyyy}-${setInputMm}-${inputDd}`;
-
-  const expiryDateInDate = new Date(setInputData);
+  const { uid } = firebase.auth().currentUser;
 
   const navigationHndl = useNavigation();
 
-  const selectedDate = new Date(inputYyyy, inputMm - 1, inputDd);
+  const isFocused = useIsFocused();
+
+  useEffect(() => console.log("THIS DOC ID", documentId), [isFocused]);
 
   // Get User Info
   useEffect(() => {
@@ -83,27 +81,23 @@ export default function AddCardBack({ navigation, route }) {
       quality: 0,
     });
 
-    // console.log(result);
-    console.log(result.assets[0].uri);
-
     if (!result.canceled) {
       setImage(result.assets[0].uri);
       setNewUrl(result.assets[0].uri);
     }
   };
 
-  // Update Back Card Url in User Card object
-  const updateCardBackUrlInUserCardObject = async (imageUrl) => {
+  // Post Content
+  const updateCollectionHandler = async (imageUrl) => {
     try {
       const collectionRef = firebase
         .firestore()
         .collection("users")
-        .doc(user.uid)
+        .doc(uid)
         .collection("cards")
-        .doc(title);
-      // .collection("UserData");
+        .doc(documentId);
       await collectionRef.update({
-        backImageProfilePic: imageUrl,
+        backImageUrl: imageUrl,
       });
       console.log("Data added to Firestore:");
     } catch (error) {
@@ -131,48 +125,49 @@ export default function AddCardBack({ navigation, route }) {
       const imageRef = ref(storage, `images/${imageName}`);
       await uploadBytes(imageRef, blob).then(async (snapshot) => {
         let imgUrl = await getDownloadURL(imageRef).then((res) => {
-          updateCardBackUrlInUserCardObject(res);
+          updateCollectionHandler(res);
           const { uid } = firebase.auth().currentUser;
           firebase
             .firestore()
-            .collection("users")
-            .doc(uid)
-            .collection("cardsBack")
-            .doc(title)
+            .collection("contentpics")
+            .doc()
             .set(
               {
-                // imageUrl: res,
-                // title: title ? title : "",
-                // expiryDate: selectedDate,
-                backImgUrl: res,
+                imageUrl: res,
+                title: title ? title : "",
                 // Add more fields as needed
               }
               // { merge: true }
             )
             .then((res) => {
-              alert("Profile uploaded Successfully");
+              alert("Post successfully added!");
               console.log(uid);
+              navigationHndl.navigate("AllCards");
             })
             .catch((err) => {
               console.log("err", err);
             });
         });
         console.log("Uploaded a blob or file!");
-        alert("Congratulations, you've added a new card!");
-        navigationHndl.navigate("AllCards", {});
       });
     } catch (error) {
       console.error("Error uploading image:", error);
     }
   };
 
+  function toggleCameraType() {
+    setType((current) =>
+      current === CameraType.back ? CameraType.front : CameraType.back
+    );
+  }
+
   return (
     <View style={styles.screenStyle}>
       <Text style={{ color: "white", marginBottom: 10 }}>
-        Add a photo of the back of your card (optional)
+        Add a photo of the back of your card
       </Text>
       <Text style={{ color: "white", fontSize: 18, fontWeight: "700" }}>
-        {title}
+        {/* {title} */}
       </Text>
 
       {/* Select Image */}
@@ -226,7 +221,7 @@ export default function AddCardBack({ navigation, route }) {
               marginTop: 40,
             }}
             onPress={() => {
-              uploadImage(image, `${Date.now()}_photo`, "cards", title);
+              uploadImage(image, `${Date.now()}_photo`, "cards");
             }}
           >
             <Text style={{ fontWeight: "700" }}>Submit & Save</Text>

@@ -10,6 +10,7 @@ import {
   ScrollView,
   Keyboard,
   KeyboardAvoidingView,
+  TouchableOpacity,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import COLORS from "../misc/COLORS";
@@ -26,6 +27,11 @@ import TextCardComp from "../miscComps/TextCardComp";
 import NOTIFICATIONS_DATA from "../misc/NOTIFICATIONS_DATA";
 import { useIsFocused } from "@react-navigation/native";
 import { useNotification } from "../context/NotificationsContext";
+import Animated, {
+  StretchInX,
+  StretchOutY,
+  ZoomIn,
+} from "react-native-reanimated";
 
 //FIREBASE CONFIG
 // const firebaseConfig = {
@@ -77,7 +83,7 @@ function HomeScreen({ navigation }) {
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       setIsVisible(true);
-    }, 2000);
+    }, 4000);
 
     // Cleanup the timeout to avoid memory leaks
     return () => clearTimeout(timeoutId);
@@ -121,13 +127,6 @@ function HomeScreen({ navigation }) {
       if (!uid) return;
       const collectionRef = firebase.firestore().collection("users").doc(uid);
       const snapshot = await collectionRef.get();
-      // console.log("snapshotdata", snapshot?.data());
-      // const fetchedData = snapshot.docs.map((doc) => ({
-      //   id: doc.id,
-      //   ...doc.data(),
-      // }));
-      // console.log("fetchedData", snapshot?.data());
-
       setData(snapshot?.data());
       setHasCreatedProfile(data?.hasCreatedProfile);
     } catch (error) {
@@ -152,7 +151,7 @@ function HomeScreen({ navigation }) {
   const fetchDocPics = () => {
     firebase
       .firestore()
-      .collection("adminposts")
+      .collection("hubpostscontent")
       .get()
       .then((querySnapshot) => {
         const contactsArray = [];
@@ -232,40 +231,42 @@ function HomeScreen({ navigation }) {
   }, []);
 
   // FlatList
-  const Item = ({ title, picLink, content }) => (
+  const Item = ({ title, picLink, content, postId }) => (
     <Pressable
       onPress={() =>
-        navigation.navigate("ContentDisplay", {
+        navigation.navigate("HubPostDisplay", {
           title: title,
           picLink: picLink,
           content: content,
+          postId: postId,
         })
       }
       style={{ marginBottom: 20, marginRight: 30 }}
     >
-      <View style={styles.itemStyle}>
+      <View
+        style={{
+          borderColor: COLORS.mainGreen,
+          borderRadius: 12,
+        }}
+      >
         <Image
           source={{ uri: picLink }}
           style={{
-            height: 220,
-            width: 220,
+            height: 170,
+            width: 250,
             borderRadius: 12,
           }}
         />
       </View>
       <View
         style={{
-          backgroundColor: COLORS.grey,
-          alignSelf: "center",
-          borderWidth: 2,
-          borderColor: COLORS.lightGreen,
           paddingVertical: 8,
-          paddingHorizontal: 12,
-          marginTop: -20,
-          borderRadius: 4,
+          paddingLeft: 10,
         }}
       >
-        <Text style={{ color: "white", fontWeight: "600" }}>{title}</Text>
+        <Text style={{ fontSize: 14, color: "white", fontWeight: "600" }}>
+          User <Text style={{ fontWeight: "300" }}>posted</Text> {title}
+        </Text>
       </View>
     </Pressable>
   );
@@ -275,6 +276,7 @@ function HomeScreen({ navigation }) {
       title={item.data.title}
       picLink={item.data.picLink}
       content={item.data.content}
+      postId={item.data.postId}
     />
   );
 
@@ -299,12 +301,15 @@ function HomeScreen({ navigation }) {
               marginHorizontal: 30,
             }}
           >
-            <View style={{}}>
+            <Pressable
+              onPress={() => navigation.navigate("CreProfA")}
+              style={{}}
+            >
               <Image
-                source={require("../assets/unislogo.gif")}
-                style={{ height: 75, width: 75, resizeMode: "contain" }}
+                source={{ uri: "https://i.imgur.com/vIhCAJH.png" }}
+                style={{ height: 60, width: 60, resizeMode: "contain" }}
               />
-            </View>
+            </Pressable>
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               {!yesNots ? (
                 <Pressable
@@ -312,7 +317,7 @@ function HomeScreen({ navigation }) {
                 >
                   <Ionicons
                     name="notifications"
-                    size={30}
+                    size={26}
                     color={COLORS.mainGreen}
                     style={{ marginRight: 10 }}
                   />
@@ -334,7 +339,7 @@ function HomeScreen({ navigation }) {
                   />
                   <Ionicons
                     name="notifications"
-                    size={30}
+                    size={26}
                     color={COLORS.mainGreen}
                     style={{ marginRight: 10 }}
                   />
@@ -371,7 +376,7 @@ function HomeScreen({ navigation }) {
           </View>
 
           {/* Search Box */}
-          <ScrollView>
+          <ScrollView showsVerticalScrollIndicator={false}>
             {/* Search Box Label */}
             <View>
               <Text
@@ -403,22 +408,26 @@ function HomeScreen({ navigation }) {
                 value={searchQuery}
                 onChangeText={(t) => setSearchQuery(t)}
               />
-              <View
+              <Pressable
+                onPress={() => navigation.navigate("HubSearch")}
                 style={{
                   justifyContent: "center",
-                  backgroundColor: COLORS.grey,
+                  // backgroundColor: COLORS.mainGreen,
                   paddingRight: 15,
-                  marginLeft: -3,
-                  borderTopRightRadius: 12,
-                  borderBottomRightRadius: 12,
+                  marginLeft: 0,
+                  paddingLeft: 10,
+                  borderTopRightRadius: 30,
+                  borderBottomRightRadius: 30,
+                  borderWidth: 1,
+                  borderColor: "lightgrey",
                 }}
               >
                 <Ionicons
-                  name="globe-outline"
-                  size={28}
+                  name="ios-search"
+                  size={26}
                   color={COLORS.mainGreen}
                 />
-              </View>
+              </Pressable>
             </View>
 
             {/* Home 4 Tiles */}
@@ -433,29 +442,37 @@ function HomeScreen({ navigation }) {
               }}
             >
               <HomeItemBox
-                title="HR"
-                iconName="ios-people-outline"
-                link={() => navigation.navigate("HRScreen")}
-              />
-              <HomeItemBox
-                title="H&S"
-                iconName="fitness"
-                link={() => navigation.navigate("HealthSafetyScreen")}
+                title="Cards"
+                iconName="card"
+                link={() => navigation.navigate("AllCards")}
               />
               <HomeItemBox
                 title="Docs"
-                iconName="md-document-outline"
-                link={() => navigation.navigate("DocsComingSoon")}
+                iconName="document-attach"
+                link={() => navigation.navigate("AllDocuments")}
               />
               <HomeItemBox
-                title="Site"
-                iconName="hammer-outline"
-                link={() => navigation.navigate("SiteScreen")}
+                title="Health"
+                iconName="fitness-sharp"
+                link={() => navigation.navigate("HealthScreen")}
+              />
+              <HomeItemBox
+                title="Pass"
+                iconName="globe-outline"
+                link={() => navigation.navigate("BusinessCard")}
               />
             </View>
             <View style={{ height: 20 }} />
 
             {/* FlatList 1 */}
+            <View style={{ marginLeft: 20, marginBottom: 6 }}>
+              <Text style={{ color: "white" }}>
+                Latest from the{" "}
+                <Text style={{ fontWeight: "700", color: COLORS.mainGreen }}>
+                  UNIS Hub
+                </Text>
+              </Text>
+            </View>
             {contacts && (
               <FlatList
                 data={filteredUsers.length > 0 ? filteredUsers : contacts}
@@ -466,41 +483,42 @@ function HomeScreen({ navigation }) {
               />
             )}
 
-            {/* Share Profile Box */}
+            {/* Home 4 Titles B */}
 
-            <Pressable
-              onPress={() => navigation.navigate("QR")}
+            <View
               style={{
+                marginTop: 20,
                 flexDirection: "row",
-                alignSelf: "center",
-                marginTop: 5,
+                // alignSelf: "center",
+                justifyContent: "space-between",
+                marginHorizontal: 20,
               }}
             >
-              <View
-                style={{
-                  alignItems: "center",
-                  borderWidth: 2,
-                  borderColor: COLORS.mainGreen,
-                  marginHorizontal: 20,
-                  justifyContent: "center",
-                  paddingHorizontal: 30,
-                  borderRadius: 8,
-                  paddingVertical: 20,
-                  backgroundColor: COLORS.grey,
-                }}
-              >
-                <MaterialIcons
-                  name="qr-code-2"
-                  size={36}
-                  color={COLORS.mainGreen}
-                />
-                <Text style={{ color: "white", fontWeight: "600" }}>
-                  Share Profile
-                </Text>
-              </View>
-            </Pressable>
+              <HomeItemBox
+                title="Taxes"
+                iconName="file-tray-full-outline"
+                link={() => navigation.navigate("ExpensesTracker")}
+              />
+              <HomeItemBox
+                title="H & S"
+                iconName="heart-circle"
+                link={() => navigation.navigate("HealthSafetyScreen")}
+              />
+              <HomeItemBox
+                title="HR"
+                iconName="people"
+                link={() => navigation.navigate("HRScreen")}
+              />
+              <HomeItemBox
+                title="Jobs"
+                iconName="hammer-outline"
+                link={() => navigation.navigate("ComingSoonJobs")}
+              />
+            </View>
+            <View style={{ height: 20 }} />
 
             {/* Text Card 1 */}
+
             <TextCardComp
               backCol={COLORS.lightGreen}
               title={"Build Your UNIS Profile"}
@@ -535,63 +553,29 @@ function HomeScreen({ navigation }) {
               titleColor={"white"}
               bodyColor={"white"}
             />
-
-            {/* FlatList 3 */}
-            <View style={{ height: 20 }} />
-            {contacts && (
-              <FlatList
-                data={contacts}
-                renderItem={renderItem}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                ListHeaderComponent={() => <View style={{ marginLeft: 20 }} />}
-              />
-            )}
-
-            {/* <Pressable
-            // onPress={async () => {
-            //   const user = await login();
-            //   setUser(user.email);
-            // }}
-            >
-              <Text style={{ color: "white" }}>Click</Text>
-            </Pressable> */}
+            <View style={{ height: 40 }} />
           </ScrollView>
         </Pressable>
       )}
 
-      {!data && isVisible && (
-        <View
-          style={{
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: COLORS.black,
-
-            paddingTop: 120,
-          }}
-        >
-          <Image
-            source={require("../assets/unislogo.gif")}
-            style={{ height: 75, width: 75, resizeMode: "contain" }}
-          />
-          <View>
-            <Pressable
-              onPress={() => navigation.navigate("CreateProfile")}
+      {!data && (
+        <View style={{ flex: 1, backgroundColor: COLORS.black }}>
+          {isVisible && (
+            <View
               style={{
-                paddingVertical: 10,
-                paddingHorizontal: 20,
-                borderRadius: 6,
-                backgroundColor: COLORS.mainGreen,
-                marginVertical: 20,
+                flex: 1,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: COLORS.black,
+                paddingTop: 120,
               }}
             >
-              <Text style={{ fontWeight: "700" }}>Complete Account</Text>
-            </Pressable>
-            <Text style={{ color: "white", textAlign: "center" }}>
-              Please complete your account for the full UNIS experience
-            </Text>
-          </View>
+              <Image
+                source={{ uri: "https://i.imgur.com/rDCre6r.png" }}
+                style={{ height: 75, width: 75, resizeMode: "contain" }}
+              />
+            </View>
+          )}
         </View>
       )}
     </KeyboardAvoidingView>
@@ -615,13 +599,16 @@ const styles = StyleSheet.create({
     height: 60,
     width: 270,
     // borderRadius: 2,
-    backgroundColor: COLORS.grey,
+    // backgroundColor: COLORS.grey,
+    borderWidth: 1,
+    borderRightWidth: 0,
+    borderColor: "lightgrey",
     alignSelf: "center",
     paddingLeft: 25,
     fontSize: 16,
     color: "white",
-    borderTopLeftRadius: 12,
-    borderBottomLeftRadius: 12,
+    borderTopLeftRadius: 30,
+    borderBottomLeftRadius: 30,
   },
   itemStyle: {
     // marginRight: 30,

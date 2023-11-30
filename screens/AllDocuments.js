@@ -5,15 +5,27 @@ import {
   StyleSheet,
   Pressable,
   Modal,
-  Animated,
   Button,
   Image,
   ScrollView,
   FlatList,
+  TextInput,
+  TouchableOpacity,
 } from "react-native";
 import EX_CARDS from "../misc/EX_CARDS";
 import COLORS from "../misc/COLORS";
-import { Ionicons, AntDesign, Feather, Octicons } from "@expo/vector-icons";
+import {
+  Ionicons,
+  AntDesign,
+  Feather,
+  Octicons,
+  FontAwesome,
+} from "@expo/vector-icons";
+import Animated, {
+  FadeIn,
+  SlideInRight,
+  SlideOutLeft,
+} from "react-native-reanimated";
 
 import firebase from "firebase/compat";
 
@@ -51,14 +63,14 @@ function AllDocuments({ navigation }) {
   const [contacts, setContacts] = useState("");
 
   // Firebase User Info
-  useEffect(() => {
-    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
-      setUser(user);
-      console.log(user.uid);
-    });
+  // useEffect(() => {
+  //   const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+  //     setUser(user);
+  //     console.log(user.uid);
+  //   });
 
-    return () => unsubscribe();
-  }, []);
+  //   return () => unsubscribe();
+  // }, []);
 
   // Fetch User Data
   const isFocused = useIsFocused();
@@ -96,7 +108,7 @@ function AllDocuments({ navigation }) {
   };
 
   // FlatList
-  const Item = ({ title, imageUrl, expiryDate }) => {
+  const Item = ({ title, imageUrl, expiryDate, documentId }) => {
     const daysDifference = calculateDaysDifference(expiryDate);
 
     let statusText = "";
@@ -107,82 +119,80 @@ function AllDocuments({ navigation }) {
     }
 
     return (
-      <Pressable
-        onPress={() =>
-          navigation.navigate("DocumentDisplay", {
-            title,
-            imageUrl,
-            statusText,
-            daysDifference,
-            expiryDate: expiryDate?.toDate().toLocaleDateString("en-GB"),
-          })
-        }
-        style={{
-          marginBottom: 60,
-          alignSelf: "center",
-          padding: 20,
-          borderRadius: 8,
-          backgroundColor: COLORS.grey,
-          paddingHorizontal: 30,
-        }}
-      >
-        <Image
-          source={{ uri: imageUrl }}
-          style={{
-            height: 250,
-            width: 200,
-            borderWidth: 2,
-            borderColor: COLORS.mainGreen,
-          }}
-        />
-        <Text
-          style={{
-            color: "white",
-            marginTop: 10,
-            fontSize: 18,
-            fontWeight: "700",
-          }}
-        >
-          {title}
-        </Text>
-        <Text
-          style={{
-            color: "white",
-            marginTop: 10,
-            fontSize: 12,
-            fontWeight: "300",
-          }}
-        >
-          Days until Expiry:{" "}
-          <Text style={{ fontWeight: "700" }}>{daysDifference}</Text>
-        </Text>
-        <Text
-          style={{
-            color: "tomato",
-            marginTop: 10,
-            fontSize: 12,
-            fontWeight: "700",
-          }}
-        >
-          {statusText}
-        </Text>
+      <Animated.View entering={FadeIn.duration(1200)}>
         <Pressable
-          style={{ paddingTop: 20, flexDirection: "row" }}
           onPress={() =>
-            navigation.navigate("DeleteDocumentConfirm", { title, imageUrl })
+            navigation.navigate("DocumentDisplay", {
+              title,
+              imageUrl,
+              statusText,
+              daysDifference,
+              documentId,
+              expiryDate: expiryDate?.toDate().toLocaleDateString("en-GB"),
+            })
           }
+          style={{
+            marginBottom: 30,
+            alignSelf: "center",
+            padding: 20,
+            borderRadius: 12,
+            // backgroundColor: COLORS.grey,
+            paddingHorizontal: 30,
+            flexDirection: "row",
+            width: 350,
+            alignItems: "center",
+            padding: 20,
+            borderWidth: 1,
+            borderColor: "white",
+          }}
         >
-          <Ionicons
-            name="ios-trash-bin-outline"
-            size={14}
-            color="lightgrey"
-            style={{ marginRight: 5 }}
+          <Image
+            source={{ uri: imageUrl }}
+            style={{
+              height: 150,
+              width: 150,
+              borderRadius: 12,
+              marginRight: 20,
+              borderWidth: 2,
+
+              // borderColor: COLORS.mainGreen,
+            }}
           />
-          <Text style={{ color: "white", fontSize: 12 }}>
-            Remove Certificate
-          </Text>
+          <View>
+            <Text
+              style={{
+                color: "white",
+                marginTop: 10,
+                fontSize: 18,
+                fontWeight: "700",
+              }}
+            >
+              {title}
+            </Text>
+            <Text
+              style={{
+                color: "white",
+                marginTop: 10,
+                fontSize: 12,
+                fontWeight: "300",
+              }}
+            >
+              Days until Expiry:{" "}
+              <Text style={{ fontWeight: "700" }}>{daysDifference}</Text>
+            </Text>
+            <Text
+              style={{
+                color: "tomato",
+                marginTop: 10,
+                fontSize: 12,
+                fontWeight: "700",
+              }}
+            >
+              {statusText}
+            </Text>
+          </View>
         </Pressable>
-      </Pressable>
+      </Animated.View>
     );
   };
 
@@ -191,6 +201,7 @@ function AllDocuments({ navigation }) {
       title={item.data.title}
       imageUrl={item.data.imageUrl}
       expiryDate={item.data.expiryDate}
+      documentId={item.data.documentId}
     />
   );
 
@@ -219,7 +230,6 @@ function AllDocuments({ navigation }) {
           )} */}
         </View>
 
-        {/* FlatList */}
         {contacts && (
           <FlatList
             data={contacts}
@@ -240,18 +250,32 @@ function AllDocuments({ navigation }) {
                   <Text
                     style={{
                       textAlign: "center",
-                      fontSize: 18,
+                      fontSize: 14,
                       fontWeight: "500",
                     }}
                   >
-                    Upload Certificate
+                    Upload New Certificate
                   </Text>
                 </Pressable>
               </View>
             )}
+            ListFooterComponent={() => (
+              <View style={{ alignItems: "center" }}>
+                <TouchableOpacity onPress={fetchDocPics}>
+                  <FontAwesome
+                    name="refresh"
+                    size={24}
+                    color="lightgrey"
+                    style={{ alignSelf: "center" }}
+                  />
+                  <Text style={{ color: "lightgrey", textAlign: "center" }}>
+                    Refresh List
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
           />
         )}
-
         <View style={{ marginHorizontal: 20 }}>
           {/* {contacts &&
               contacts.map((i) => (
@@ -317,7 +341,7 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     paddingHorizontal: 30,
-    paddingVertical: 15,
+    paddingVertical: 10,
     borderRadius: 6,
     backgroundColor: COLORS.mainGreen,
     marginBottom: 30,

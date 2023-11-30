@@ -29,11 +29,17 @@ export default function HomeItemBox({ title, link, iconName }) {
 
 const styles = StyleSheet.create({
   containerStyle: {
-    backgroundColor: COLORS.grey,
+    // backgroundColor: COLORS.grey,
+
+    borderWidth: 1,
+    borderColor: "lightgrey",
     borderRadius: 6,
     alignSelf: "center",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 24,
+    justifyContent: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    width: 70,
+    height: 70,
   },
 });

@@ -10,6 +10,13 @@ import {
   KeyboardAvoidingView,
   TouchableOpacity,
 } from "react-native";
+import Animated, {
+  FadeInLeft,
+  RollInLeft,
+  RollInRight,
+  RollOutLeft,
+} from "react-native-reanimated";
+
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../misc/COLORS";
 
@@ -144,8 +151,15 @@ function InitLogIn({ navigation }) {
         {/* Logo */}
         <View style={{}}>
           <Image
-            source={require("../assets/unislogo.gif")}
-            style={{ height: 100, resizeMode: "contain", marginBottom: 10 }}
+            source={{
+              uri: "https://i.imgur.com/vIhCAJH.png",
+            }}
+            style={{
+              height: 100,
+              width: 100,
+              resizeMode: "contain",
+              marginBottom: 10,
+            }}
           />
         </View>
         {/* Logo Copy Subtitle */}
@@ -188,7 +202,7 @@ function InitLogIn({ navigation }) {
             style={[
               styles.input,
               {
-                width: 270,
+                width: 250,
                 borderTopRightRadius: 0,
                 borderBottomRightRadius: 0,
               },
@@ -205,10 +219,10 @@ function InitLogIn({ navigation }) {
               justifyContent: "center",
               alignItems: "center",
               backgroundColor: COLORS.grey,
-              width: 30,
+              width: 50,
               height: 60,
-              borderTopRightRadius: 4,
-              borderBottomRightRadius: 4,
+              borderTopRightRadius: 30,
+              borderBottomRightRadius: 30,
               paddingRight: 5,
 
               alignSelf: "center",
@@ -246,6 +260,8 @@ function InitLogIn({ navigation }) {
           style={[
             styles.button,
             {
+              borderRadius: 30,
+              paddingHorizontal: 30,
               backgroundColor:
                 email.length > 3 && password.length > 6
                   ? COLORS.mainGreen
@@ -265,6 +281,7 @@ function InitLogIn({ navigation }) {
         /> */}
 
         {/* Create Account Link */}
+
         <Pressable
           onPress={() => navigation.navigate("CreateAccount")}
           style={{ marginTop: 30, alignSelf: "center" }}
@@ -321,9 +338,9 @@ const styles = StyleSheet.create({
   input: {
     height: 60,
     width: 300,
-    paddingLeft: 15,
+    paddingLeft: 20,
     backgroundColor: COLORS.grey,
-    borderRadius: 4,
+    borderRadius: 30,
     fontSize: 16,
     color: "white",
   },

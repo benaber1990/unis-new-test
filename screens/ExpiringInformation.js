@@ -10,10 +10,11 @@ import {
   Image,
   ScrollView,
   FlatList,
+  Dimensions,
 } from "react-native";
 import EX_CARDS from "../misc/EX_CARDS";
 import COLORS from "../misc/COLORS";
-import { Ionicons, AntDesign, Feather, Octicons } from "@expo/vector-icons";
+import { Ionicons, FontAwesome } from "@expo/vector-icons";
 
 import firebase from "firebase/compat";
 
@@ -40,6 +41,12 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
+
+const windowWidth = Dimensions.get("window").width;
+
+const tempPic =
+  "https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2";
+
 const ExpiringInformation = ({ navigation }) => {
   const [hasCards, setHasCards] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
@@ -193,35 +200,39 @@ const ExpiringInformation = ({ navigation }) => {
         })
       }
       style={{
+        width: windowWidth - 10,
+        marginBottom: 2,
         backgroundColor: COLORS.grey,
-        marginBottom: 30,
-        paddingHorizontal: 20,
-        paddingVertical: 10,
-        borderRadius: 6,
-        width: 300,
+        paddingVertical: 15,
+        paddingHorizontal: 10,
+        paddingRight: 20,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        // borderRadius: 8,
       }}
     >
-      <Text style={{ color: "white", fontWeight: "700", fontSize: 16 }}>
-        {title}
-      </Text>
-      <Text>{documentId}</Text>
+      <View style={{ flexDirection: "row" }}>
+        <Image
+          source={{ uri: tempPic }}
+          style={{ height: 30, width: 30, borderRadius: 15, marginRight: 10 }}
+        />
+        <View>
+          <Text style={{ color: "white", fontWeight: "700" }}>{title}</Text>
+          {/* <Text>{documentId}</Text> */}
 
-      <Text style={{ color: "lightgrey" }}>
-        Due Date: {expiryDate.toDate().toLocaleDateString("en-GB")}
-      </Text>
+          <Text style={{ fontSize: 12, color: "lightgrey" }}>
+            Due Date: {expiryDate.toDate().toLocaleDateString("en-GB")}
+          </Text>
+        </View>
+      </View>
       {/* <Text>{expiryDate}</Text> */}
-
       <Pressable
         onPress={() => updateHideNot(documentId, collection)}
         style={{ padding: 10, paddingBottom: 5, flexDirection: "row" }}
       >
-        <Ionicons
-          name="trash-bin-outline"
-          size={16}
-          color="grey"
-          style={{ marginRight: 5 }}
-        />
-        <Text style={{ color: "grey" }}>Remove Notification</Text>
+        <FontAwesome name="envelope-open-o" size={16} color="white" />
+        {/* <FontAwesome name="envelope" size={16} color="white" /> */}
       </Pressable>
     </Pressable>
   );
@@ -247,7 +258,66 @@ const ExpiringInformation = ({ navigation }) => {
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}
-        ListHeaderComponent={() => <View style={{ paddingTop: 40 }} />}
+        ListHeaderComponent={() => (
+          <View
+            style={{
+              paddingTop: 10,
+              alignItems: "flex-start",
+              flexDirection: "row",
+            }}
+          >
+            <Pressable
+              style={{
+                backgroundColor: COLORS.mainGreen,
+                paddingHorizontal: 12,
+                paddingVertical: 4,
+                borderTopLeftRadius: 6,
+                borderTopRightRadius: 6,
+                marginRight: 2,
+              }}
+            >
+              <Text style={{ color: COLORS.black, fontWeight: "700" }}>
+                All
+              </Text>
+            </Pressable>
+            <Pressable
+              style={{
+                backgroundColor: COLORS.grey,
+                paddingHorizontal: 12,
+                paddingVertical: 4,
+                borderTopLeftRadius: 6,
+                borderTopRightRadius: 6,
+                marginRight: 2,
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "700" }}>Cards</Text>
+            </Pressable>
+            <Pressable
+              style={{
+                backgroundColor: COLORS.grey,
+                paddingHorizontal: 12,
+                paddingVertical: 4,
+                borderTopLeftRadius: 6,
+                borderTopRightRadius: 6,
+                marginRight: 2,
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "700" }}>Team</Text>
+            </Pressable>
+            <Pressable
+              style={{
+                backgroundColor: COLORS.grey,
+                paddingHorizontal: 12,
+                paddingVertical: 4,
+                borderTopLeftRadius: 6,
+                borderTopRightRadius: 6,
+                marginRight: 2,
+              }}
+            >
+              <Text style={{ color: "white", fontWeight: "700" }}>Hub</Text>
+            </Pressable>
+          </View>
+        )}
         ListFooterComponent={() => (
           <Pressable
             onPress={() => navigation.navigate("Profile")}
@@ -258,17 +328,7 @@ const ExpiringInformation = ({ navigation }) => {
               // backgroundColor: COLORS.mainGreen,
               borderRadius: 4,
             }}
-          >
-            <Text
-              style={{
-                fontWeight: "700",
-                color: COLORS.mainGreen,
-                marginBottom: 60,
-              }}
-            >
-              All My Documents
-            </Text>
-          </Pressable>
+          ></Pressable>
         )}
       />
     </View>

@@ -4,27 +4,18 @@ import {
   Image,
   View,
   Text,
-  StyleSheet,
   Platform,
-  Pressable,
+  TouchableOpacity,
+  StyleSheet,
   TextInput,
   ScrollView,
-  AvoidingView,
-  KeyboardAvoidingView,
-  TouchableOpacity,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import COLORS from "../misc/COLORS";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { useNavigation } from "@react-navigation/native";
 
 import firebase from "firebase/compat";
-
-// import firebase from "firebase/compat/app";
-import "firebase/compat/database";
-import "firebase/auth";
-
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 //FIREBASE CONFIG
 const firebaseConfig = {
@@ -42,36 +33,25 @@ if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
 
-export default function AddNewCard() {
-  const [user, setUser] = useState(null);
+export default function AddNewCard({ navigation }) {
   const [image, setImage] = useState(null);
   const [newUrl, setNewUrl] = useState("Hello");
+  const { uid } = firebase.auth().currentUser;
   const [title, setTitle] = useState("");
-  const [inputDd, setInputDd] = useState("");
-  const [inputMm, setInputMm] = useState("");
-  const [inputYyyy, setInputYyyy] = useState("");
-  const [inputDate, setInputDate] = useState("");
-
-  const setInputData = `${inputYyyy}-${setInputMm}-${inputDd}`;
-
-  const expiryDateInDate = new Date(setInputData);
-
-  const navigationHndl = useNavigation();
+  const [inputDd, setInputDd] = useState();
+  const [inputMm, setInputMm] = useState();
+  const [inputYyyy, setInputYyyy] = useState();
+  const [docId, setDocId] = useState("");
 
   const selectedDate = new Date(inputYyyy, inputMm - 1, inputDd);
 
-  // Get User Info
-  useEffect(() => {
-    const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
-      setUser(user);
-      console.log(user);
-    });
+  const navigationHndl = useNavigation();
 
-    // Cleanup the listener when the component unmounts
-    return () => unsubscribe();
-  }, []);
-
-  // Select Image
+  function toggleCameraType() {
+    setType((current) =>
+      current === CameraType.back ? CameraType.front : CameraType.back
+    );
+  }
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -81,8 +61,7 @@ export default function AddNewCard() {
       quality: 0,
     });
 
-    // console.log(result);
-    console.log(result.assets[0].uri);
+    console.log(result);
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
@@ -128,27 +107,18 @@ export default function AddNewCard() {
                 hideNot: false,
                 message: "",
                 collection: "cards",
-
+                backImageUrl: "",
                 // Add more fields as needed
               }
               // { merge: true }
             )
-            .then((res) => {
-              alert("Profile uploaded Successfully");
-              console.log(uid);
-            })
+            .then((res) => {})
             .catch((err) => {
               console.log("err", err);
             });
         });
-        console.log("Uploaded a blob or file!");
-        console.log("EXPIRY DATE:", selectedDate);
-        alert(
-          "Congratulations, you've added a new card! Please add the back of your card next (optional)"
-        );
-        navigationHndl.navigate("AddCardBack", {
-          title,
-        });
+
+        navigationHndl.navigate("AllCards");
       });
     } catch (error) {
       console.error("Error uploading image:", error);
@@ -156,188 +126,144 @@ export default function AddNewCard() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }}>
+    <ScrollView style={{ flex: 1, backgroundColor: COLORS.black }}>
       <View style={styles.screenStyle}>
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={{ alignItems: "center" }}>
-            <Pressable onPress={pickImage} style={{}}>
-              <MaterialCommunityIcons
-                name="upload-lock"
-                size={72}
-                color={COLORS.mainGreen}
-              />
-            </Pressable>
+        <Text>YourComponentName</Text>
 
-            <View
-              style={{ alignSelf: "center", padding: 20, marginBottom: 20 }}
-            >
-              <Text style={{ color: "white", fontSize: 24, fontWeight: "500" }}>
-                Upload New Card
+        {/* Choose File */}
+        <TouchableOpacity onPress={pickImage} style={styles.selectButtonStyle}>
+          <Text style={styles.selectButtonText}>
+            Select File - From Gallery
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate("AddNewCardPhoto")}
+          style={[
+            styles.selectButtonStyle,
+            {
+              backgroundColor: COLORS.black,
+              borderWidth: 1,
+              borderColor: "white",
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.selectButtonText,
+              {
+                color: "white",
+              },
+            ]}
+          >
+            Select File - Take New Photo
+          </Text>
+        </TouchableOpacity>
+
+        {/* Take Picture */}
+        {/* <TouchableOpacity style={styles.selectButtonStyle}>
+          <Text style={styles.selectButtonText}>
+            Take Photo - Front of Card
+          </Text>
+        </TouchableOpacity> */}
+
+        {image && (
+          <View>
+            <Image
+              source={{ uri: image }}
+              style={{ width: 300, height: 200, borderRadius: 12 }}
+            />
+
+            {/* Text Input */}
+            <View style={{ marginTop: 30, alignItems: "center" }}>
+              <Text
+                style={{
+                  alignSelf: "flex-start",
+                  color: "white",
+                  marginLeft: 20,
+                }}
+              >
+                Card Title
               </Text>
+              <TextInput
+                style={styles.textInputStyle}
+                placeholder="Enter the card title"
+                placeholderTextColor={"lightgrey"}
+                value={title}
+                onChangeText={(t) => setTitle(t)}
+              />
+
+              {/* Expiry Date */}
+              <Text
+                style={{
+                  color: "white",
+
+                  marginTop: 20,
+                }}
+              >
+                Card Expiry Date
+              </Text>
+              <View
+                style={{ flexDirection: "row", justifyContent: "flex-start" }}
+              >
+                <TextInput
+                  style={[
+                    styles.textInputStyle,
+                    {
+                      width: 50,
+                      paddingLeft: 0,
+                      textAlign: "center",
+                    },
+                  ]}
+                  placeholder="DD"
+                  placeholderTextColor={"lightgrey"}
+                  value={inputDd}
+                  onChangeText={(t) => setInputDd(t)}
+                />
+                <TextInput
+                  style={[
+                    styles.textInputStyle,
+                    {
+                      width: 50,
+                      marginHorizontal: 10,
+                      paddingLeft: 0,
+                      textAlign: "center",
+                    },
+                  ]}
+                  placeholder="MM"
+                  placeholderTextColor={"lightgrey"}
+                  value={inputMm}
+                  onChangeText={(t) => setInputMm(t)}
+                />
+                <TextInput
+                  style={[
+                    styles.textInputStyle,
+                    {
+                      width: 80,
+                      paddingLeft: 0,
+                      textAlign: "center",
+                    },
+                  ]}
+                  placeholder="YYYY"
+                  placeholderTextColor={"lightgrey"}
+                  value={inputYyyy}
+                  onChangeText={(t) => setInputYyyy(t)}
+                />
+              </View>
             </View>
 
             <TouchableOpacity
-              onPress={pickImage}
-              style={{
-                paddingVertical: 15,
-                paddingHorizontal: 20,
-                backgroundColor: COLORS.mainGreen,
-                borderRadius: 6,
+              onPress={() => {
+                uploadImage(image, `${Date.now()}_photo`, "cards", title);
               }}
+              style={styles.submitButtonStyle}
             >
-              <Text style={{ fontSize: 16, fontWeight: "700" }}>
-                Select file - Front of Card
-              </Text>
+              <Text style={{ fontWeight: "700" }}>Submit</Text>
             </TouchableOpacity>
-
-            {image && (
-              <View style={{ alignItems: "center", marginTop: 30 }}>
-                <Image
-                  source={{ uri: image }}
-                  style={{
-                    width: 270,
-                    height: 180,
-                    borderRadius: 12,
-                    marginTop: 20,
-                  }}
-                />
-                {/* <Text style={{ color: "white" }}>{`${newUrl}`}</Text> */}
-                <View style={{ marginTop: 30 }}>
-                  <Text
-                    style={{
-                      color: "white",
-                      marginBottom: 8,
-                      textAlign: "center",
-                    }}
-                  >
-                    Please provide a title for your certificate
-                  </Text>
-                  <TextInput
-                    style={{
-                      backgroundColor: COLORS.grey,
-                      width: 250,
-                      height: 50,
-                      paddingLeft: 20,
-                      borderRadius: 4,
-                      alignSelf: "center",
-                      color: "white",
-                      fontSize: 16,
-                    }}
-                    placeholder="Enter a Title here"
-                    placeholderTextColor={"lightgrey"}
-                    value={title}
-                    onChangeText={(text) => {
-                      setTitle(text);
-                    }}
-                  />
-                  <Text
-                    style={{
-                      color: "white",
-                      marginBottom: 8,
-                      textAlign: "center",
-                      marginTop: 20,
-                      marginHorizontal: 30,
-                    }}
-                  >
-                    Please enter the expiry date of your card{"\n"}in DD/MM/YYY
-                    format
-                  </Text>
-                  <View
-                    style={{ flexDirection: "row", justifyContent: "center" }}
-                  >
-                    <TextInput
-                      style={{
-                        backgroundColor: COLORS.grey,
-                        width: 60,
-                        height: 50,
-                        textAlign: "center",
-                        borderRadius: 4,
-                        alignSelf: "center",
-                        color: "white",
-                        fontSize: 16,
-                        marginRight: 10,
-                      }}
-                      placeholder="DD"
-                      keyboardType="numeric"
-                      placeholderTextColor={"lightgrey"}
-                      value={inputDd}
-                      onChangeText={(text) => {
-                        setInputDd(text);
-                      }}
-                    />
-                    <TextInput
-                      style={{
-                        backgroundColor: COLORS.grey,
-                        width: 60,
-                        height: 50,
-                        textAlign: "center",
-                        borderRadius: 4,
-                        alignSelf: "center",
-                        color: "white",
-                        fontSize: 16,
-                      }}
-                      keyboardType="numeric"
-                      placeholder="MM"
-                      placeholderTextColor={"lightgrey"}
-                      value={inputMm}
-                      onChangeText={(text) => {
-                        setInputMm(text);
-                      }}
-                    />
-                    <TextInput
-                      style={{
-                        backgroundColor: COLORS.grey,
-                        width: 90,
-                        height: 50,
-                        textAlign: "center",
-                        borderRadius: 4,
-                        alignSelf: "center",
-                        color: "white",
-                        // fontSize: 16,
-                        marginLeft: 10,
-                      }}
-                      keyboardType="numeric"
-                      placeholder="YYYY"
-                      placeholderTextColor={"lightgrey"}
-                      value={inputYyyy}
-                      onChangeText={(text) => {
-                        setInputYyyy(text);
-                      }}
-                    />
-                  </View>
-                </View>
-
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: COLORS.mainGreen,
-                    paddingVertical: 15,
-                    paddingHorizontal: 25,
-                    borderRadius: 4,
-                    marginTop: 30,
-                    alignSelf: "center",
-                    marginBottom: 40,
-                  }}
-                  onPress={() => {
-                    uploadImage(image, `${Date.now()}_photo`, "cards", title);
-                  }}
-                >
-                  <Text style={{ fontWeight: "700" }}>
-                    Submit & Add Back Image
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
           </View>
-
-          {/* <Pressable
-          onPress={() => console.log(expiryDateInDate)}
-          style={{ padding: 20, backgroundColor: "tomato", marginTop: 60 }}
-        >
-          <Text>Test Expiry Date</Text>
-        </Pressable> */}
-        </ScrollView>
+        )}
       </View>
-    </KeyboardAvoidingView>
+    </ScrollView>
   );
 }
 
@@ -346,11 +272,35 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.black,
     alignItems: "center",
-    justifyContent: "center",
   },
-  container: {
+
+  selectButtonStyle: {
+    backgroundColor: COLORS.mainGreen,
+    width: 220,
+    alignItems: "center",
+    paddingVertical: 12,
+    borderRadius: 4,
+    marginBottom: 20,
+  },
+  selectButtonText: {
+    fontWeight: "700",
+  },
+  submitButtonStyle: {
+    backgroundColor: COLORS.mainGreen,
+    paddingVertical: 15,
+    borderRadius: 30,
+    paddingHorizontal: 30,
     alignSelf: "center",
-    padding: 20,
-    marginBottom: 40,
+    marginTop: 20,
+  },
+  textInputStyle: {
+    width: 270,
+    height: 50,
+    backgroundColor: COLORS.grey,
+    paddingLeft: 20,
+    fontSize: 16,
+    borderRadius: 6,
+    marginTop: 3,
+    color: "white",
   },
 });

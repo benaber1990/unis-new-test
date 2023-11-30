@@ -1,33 +1,38 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import COLORS from "../misc/COLORS";
 
-export default function ProfNewIcon({ title, link, iconName, onPress }) {
+export default function ProfNewIcon({ title, link, size, iconName, onPress }) {
   return (
-    <Pressable onPress={onPress} style={styles.containerStyle}>
-      <Ionicons name={iconName} size={32} color={COLORS.lightGreen} />
+    <TouchableOpacity onPress={onPress} style={styles.containerStyle}>
+      <Ionicons
+        name={iconName}
+        size={size ? size : 24}
+        color={COLORS.mainGreen}
+      />
       <Text
         style={{
-          color: COLORS.mainGreen,
-          fontSize: 12,
-          fontWeight: "600",
+          color: "white",
+          fontSize: 10,
+          fontWeight: "700",
+          textAlign: "center",
           //   marginTop: 5,
         }}
       >
         {title}
       </Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   containerStyle: {
-    backgroundColor: COLORS.grey,
+    backgroundColor: COLORS.black,
     borderRadius: 6,
     alignSelf: "center",
     alignItems: "center",
     paddingVertical: 8,
-    paddingHorizontal: 18,
+    paddingHorizontal: 8,
   },
 });

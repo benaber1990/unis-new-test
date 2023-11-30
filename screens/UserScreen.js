@@ -46,10 +46,10 @@ function UserScreen({ navigation }) {
   const [hasNots, setHasNots] = useState(false);
   const [data, setData] = useState([]);
   const [contacts, setContacts] = useState("");
-  const navigationHndl = useNavigation();
   const [yesNots, setYesNots] = useState(false);
 
-  const { uid } = firebase.auth().currentUser.uid;
+  const { uid } = firebase.auth().currentUser;
+  const navigationHndl = useNavigation();
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -71,6 +71,12 @@ function UserScreen({ navigation }) {
 
     return () => unsubscribe();
   }, []);
+
+  // LogOut Button
+  const handleLogout = () => {
+    navigationHndl.navigate("InitLogin");
+    firebase.auth().signOut();
+  };
 
   // Fetch Data
   // Fetch User Data
@@ -593,13 +599,13 @@ function UserScreen({ navigation }) {
           }}
         >
           <Image
-            source={require("../assets/unislogo.gif")}
+            source={{ uri: "https://i.imgur.com/rDCre6r.png" }}
             style={{ height: 75, width: 75, resizeMode: "contain" }}
           />
           {isVisible && (
-            <View>
+            <View style={{ alignItems: "center" }}>
               <Pressable
-                onPress={() => navigation.navigate("CreateProfile")}
+                onPress={() => navigation.navigate("CreateProfileA")}
                 style={{
                   paddingVertical: 10,
                   paddingHorizontal: 20,
@@ -613,6 +619,19 @@ function UserScreen({ navigation }) {
               <Text style={{ color: "white", textAlign: "center" }}>
                 Please complete your account for the full UNIS experience
               </Text>
+
+              <Pressable onPress={() => navigation.navigate("ConfirmLogOut")}>
+                <Text
+                  style={{
+                    textDecorationLine: "underline",
+                    fontSize: 20,
+                    marginTop: 60,
+                    color: "grey",
+                  }}
+                >
+                  Log Out
+                </Text>
+              </Pressable>
             </View>
           )}
         </View>
@@ -634,13 +653,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   buttonStyle: {
-    backgroundColor: COLORS.grey,
+    // backgroundColor: COLORS.grey,
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 6,
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 20,
+    marginTop: 10,
   },
   itemStyle: {
     flexDirection: "row",
@@ -650,7 +669,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 22,
     borderWidth: 2,
-    borderColor: COLORS.mainGreen,
+    // borderColor: COLORS.mainGreen,
   },
 });
 

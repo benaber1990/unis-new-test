@@ -28,12 +28,11 @@ export default function ConfirmLogOut() {
   const navigationHndl = useNavigation();
 
   const handleLogOut = () => {
+    navigationHndl.navigate("Home");
     firebase
       .auth()
       .signOut()
-      .then(() => {
-        navigationHndl.navigate("InitLogin");
-      })
+      .then(() => {})
       .catch((error) => {
         // Handle registration errors
         console.error("Registration error:", error);

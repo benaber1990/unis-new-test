@@ -32,9 +32,8 @@ if (!firebase.apps.length) {
 }
 
 export default function DeleteDocumentConfirm({ route }) {
-  const { title, imageUrl } = route.params;
+  const { title, imageUrl, documentId } = route.params;
   const { uid } = firebase.auth().currentUser;
-
   const navigationHndl = useNavigation();
 
   const createAlert = () =>
@@ -107,7 +106,7 @@ export default function DeleteDocumentConfirm({ route }) {
       </Text>
 
       <Pressable
-        onPress={() => deleteDocument(title)}
+        onPress={() => deleteDocument(documentId)}
         style={{
           paddingVertical: 10,
           paddingHorizontal: 20,

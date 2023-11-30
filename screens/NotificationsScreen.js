@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   FlatList,
   Pressable,
+  Dimensions,
 } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import COLORS from "../misc/COLORS";
@@ -38,6 +39,8 @@ const firebaseConfig = {
 if (!firebase.apps.length) {
   firebase.initializeApp(firebaseConfig);
 }
+
+const windowWidth = Dimensions.get("window").width;
 
 function NotificationsScreen({ navigation }) {
   const [data, setData] = useState("");
@@ -220,20 +223,19 @@ function NotificationsScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   screenStyle: {
-    backgroundColor: COLORS.black,
+    backgroundColor: COLORS.grey,
     flex: 1,
     // alignItems: "center",
   },
   itemStyle: {
+    width: windowWidth - 10,
+    marginBottom: 2,
     backgroundColor: COLORS.grey,
-    marginBottom: 20,
-    // paddingVertical: 15,
+    paddingVertical: 15,
     // paddingHorizontal: 20,
-    borderRadius: 4,
     flexDirection: "row",
-    width: 250,
-    marginLeft: 20,
-    // alignSelf: "center",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 });
 
